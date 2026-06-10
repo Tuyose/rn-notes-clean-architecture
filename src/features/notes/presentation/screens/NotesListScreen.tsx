@@ -1,22 +1,25 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
   AppText,
   AppButton,
   AppInput,
+  AppBadge,
   AppEmptyState,
   AppScreen,
-  ScreenHeader,
 } from '../../../../core/design-system';
 import { colors, spacing } from '../../../../core/theme';
 import { NoteCard } from '../components';
 import { useNotesStore } from '../store';
 import type { Note } from '../../domain/entities';
 
+const FILTER_CHIPS = ['All', 'Work', 'Ideas', 'Architecture', 'Planning'];
+
 export function NotesListScreen() {
   const router = useRouter();
   const { notes, loading, error, loadNotes } = useNotesStore();
+  const [selectedFilter, setSelectedFilter] = useState('All');
 
   React.useEffect(() => {
     loadNotes();
@@ -34,33 +37,59 @@ export function NotesListScreen() {
   }, [router]);
 
   const activeNotes = notes.filter((n) => !n.isArchived);
+  const filteredNotes =
+    selectedFilter === 'All'
+      ? activeNotes
+      : activeNotes.filter((n) =>
+          n.tags.some((t) => t.toLowerCase() === selectedFilter.toLowerCase()),
+        );
 
   return (
     <AppScreen>
-      <ScreenHeader
-        title="Notes"
-        subtitle="Capture ideas, drafts, and tagged notes."
-        rightAction={<AppButton title="+ New" size="sm" onPress={handleCreate} />}
-      />
+      {/* Hero header */}
+      <View style={styles.hero}>
+        <View style={styles.heroTop}>
+          <View>
+            <AppText variant="display">Notes</AppText>
+            <AppText variant="body" color={colors.gray400} style={styles.subtitle}>
+              Capture ideas, drafts, and tagged notes.
+            </AppText>
+          </View>
+          <AppButton title="+ New" variant="soft" size="sm" onPress={handleCreate} />
+        </View>
+      </View>
 
-      {/* Search placeholder */}
-      <AppInput placeholder="Search notes..." editable={false} style={styles.search} />
+      {/* Search bar */}
+      <View style={styles.searchContainer}>
+        <AppInput
+          variant="search"
+          placeholder="Search notes…"
+          editable={false}
+          style={styles.search}
+        />
+      </View>
 
-      {/* Tags filter placeholder */}
-      <View style={styles.filterRow}>
-        <AppText variant="caption" color={colors.gray400}>
-          Tags filter coming soon…
-        </AppText>
+      {/* Filter chips */}
+      <View style={styles.chipRow}>
+        {FILTER_CHIPS.map((chip) => (
+          <AppBadge
+            key={chip}
+            label={chip}
+            selected={selectedFilter === chip}
+            onPress={() => setSelectedFilter(chip)}
+          />
+        ))}
       </View>
 
       {error && (
-        <AppText variant="body" color={colors.error} style={styles.error}>
+        <AppText variant="caption" color={colors.error} style={styles.error}>
           {error}
         </AppText>
       )}
 
+      {/* Notes list */}
       <FlatList
-        data={activeNotes}
+        data={filteredNotes}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <NoteCard note={item} onPress={handleNotePress} />}
         contentContainerStyle={styles.list}
@@ -68,7 +97,7 @@ export function NotesListScreen() {
         ListEmptyComponent={
           !loading ? (
             <AppEmptyState
-              icon="📝"
+              icon="✦"
               title="No notes yet"
               description="Create your first note to get started."
               action={<AppButton title="Create Note" onPress={handleCreate} />}
@@ -81,12 +110,26 @@ export function NotesListScreen() {
 }
 
 const styles = StyleSheet.create({
-  search: {
-    marginBottom: spacing.sm,
-  },
-  filterRow: {
+  hero: {
     marginBottom: spacing.md,
-    paddingVertical: spacing.xs,
+  },
+  heroTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  subtitle: {
+    marginTop: spacing.xs,
+  },
+  searchContainer: {
+    marginBottom: spacing.sm + 2,
+  },
+  search: {},
+  chipRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+    flexWrap: 'wrap',
   },
   list: {
     paddingBottom: spacing.xxl,

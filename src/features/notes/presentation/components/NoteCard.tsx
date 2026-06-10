@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { AppText, AppCard, AppBadge } from '../../../../core/design-system';
-import { colors, spacing, typography } from '../../../../core/theme';
+import { AppText, AppBadge } from '../../../../core/design-system';
+import { colors, spacing, radius, shadows, typography } from '../../../../core/theme';
 import type { Note } from '../../domain/entities';
 
 interface NoteCardProps {
@@ -10,28 +10,32 @@ interface NoteCardProps {
 }
 
 export function NoteCard({ note, onPress }: NoteCardProps) {
-  const preview = note.body.length > 120 ? `${note.body.slice(0, 120)}...` : note.body;
+  const preview = note.body.length > 140 ? `${note.body.slice(0, 140)}…` : note.body;
   const relativeDate = getRelativeDate(note.updatedAt);
 
   return (
     <Pressable
       onPress={() => onPress(note)}
       accessibilityRole="button"
-      style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
+      style={({ pressed }) => [styles.wrapper, pressed && styles.pressed]}
     >
-      <AppCard variant="default" style={styles.card}>
+      <View style={styles.card}>
         {/* Title row */}
         <View style={styles.titleRow}>
           <AppText variant="h3" style={styles.title} numberOfLines={1}>
             {note.title}
           </AppText>
-          {note.isArchived && <AppBadge label="Archived" color={colors.gray500} />}
+          {note.isArchived && (
+            <View style={styles.archivedDot}>
+              <AppText style={styles.archivedIcon}>↗</AppText>
+            </View>
+          )}
         </View>
 
         {/* Body preview */}
         <AppText
           variant="body"
-          color={colors.gray600}
+          color={colors.gray500}
           numberOfLines={2}
           style={styles.body}
         >
@@ -54,7 +58,7 @@ export function NoteCard({ note, onPress }: NoteCardProps) {
             {relativeDate}
           </AppText>
         </View>
-      </AppCard>
+      </View>
     </Pressable>
   );
 }
@@ -75,8 +79,20 @@ function getRelativeDate(isoDate: string): string {
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    marginBottom: spacing.sm + 2,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...shadows.sm,
+  },
+  pressed: {
+    opacity: 0.85,
+    transform: [{ scale: 0.995 }],
+  },
   card: {
-    marginBottom: spacing.sm,
+    padding: spacing.md,
   },
   titleRow: {
     flexDirection: 'row',
@@ -89,8 +105,21 @@ const styles = StyleSheet.create({
     marginRight: spacing.sm,
     fontSize: typography.sizes.lg,
   },
+  archivedDot: {
+    width: 24,
+    height: 24,
+    borderRadius: radius.full,
+    backgroundColor: colors.gray100,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  archivedIcon: {
+    fontSize: 12,
+    color: colors.gray400,
+  },
   body: {
-    marginBottom: spacing.sm,
+    marginBottom: spacing.sm + 2,
+    lineHeight: typography.sizes.md * typography.lineHeights.relaxed,
   },
   footer: {
     flexDirection: 'row',
