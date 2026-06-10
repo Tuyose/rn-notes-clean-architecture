@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { Note, CreateNoteInput, UpdateNoteInput } from '../../domain/entities';
-import { InMemoryNotesRepository } from '../../data/repositories';
-import { createDemoNotes } from '../../data/seed';
+import { createNotesRepository } from '../../data/repositories';
+import type { AsyncStorageNotesRepository } from '../../data/repositories';
 import {
   GetNotesUseCase,
   GetNoteByIdUseCase,
@@ -11,8 +11,7 @@ import {
   DeleteNoteUseCase,
 } from '../../domain/use-cases';
 
-const repository = new InMemoryNotesRepository();
-repository.seed(createDemoNotes());
+const repository = createNotesRepository();
 
 const getNotesUseCase = new GetNotesUseCase(repository);
 const getNoteByIdUseCase = new GetNoteByIdUseCase(repository);
@@ -25,8 +24,10 @@ interface NotesState {
   notes: Note[];
   selectedNote: Note | null;
   loading: boolean;
+  hydrated: boolean;
   error: string | null;
 
+  hydrate: () => Promise<void>;
   loadNotes: () => Promise<void>;
   loadNoteById: (id: string) => Promise<void>;
   createNote: (input: CreateNoteInput) => Promise<Note>;
@@ -36,11 +37,28 @@ interface NotesState {
   clearSelected: () => void;
 }
 
-export const useNotesStore = create<NotesState>((set) => ({
+export const useNotesStore = create<NotesState>((set, get) => ({
   notes: [],
   selectedNote: null,
   loading: false,
+  hydrated: false,
   error: null,
+
+  hydrate: async () => {
+    if (get().hydrated) return;
+    set({ loading: true, error: null });
+    try {
+      // Repository must be AsyncStorageNotesRepository for hydration
+      const asyncRepo = repository as AsyncStorageNotesRepository;
+      if (asyncRepo.hydrate) {
+        await asyncRepo.hydrate();
+      }
+      const notes = await getNotesUseCase.execute();
+      set({ notes, loading: false, hydrated: true });
+    } catch (e) {
+      set({ error: (e as Error).message, loading: false, hydrated: true });
+    }
+  },
 
   loadNotes: async () => {
     set({ loading: true, error: null });
