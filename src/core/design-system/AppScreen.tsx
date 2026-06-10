@@ -29,7 +29,7 @@ export function AppScreen({
 }: AppScreenProps) {
   return (
     <SafeAreaView
-      edges={['top', 'left', 'right']}
+      edges={['top', 'bottom', 'left', 'right']}
       style={[
         styles.base,
         { backgroundColor },
