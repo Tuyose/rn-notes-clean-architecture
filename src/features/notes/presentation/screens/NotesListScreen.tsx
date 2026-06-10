@@ -9,7 +9,7 @@ import {
   AppEmptyState,
   AppScreen,
 } from '../../../../core/design-system';
-import { colors, spacing } from '../../../../core/theme';
+import { spacing } from '../../../../core/theme';
 import { NoteCard } from '../components';
 import { useNotesStore } from '../store';
 import type { Note } from '../../domain/entities';
@@ -18,7 +18,7 @@ const FILTER_CHIPS = ['All', 'Work', 'Ideas', 'Architecture', 'Planning'];
 
 export function NotesListScreen() {
   const router = useRouter();
-  const { notes, loading, error, loadNotes } = useNotesStore();
+  const { notes, loading, loadNotes } = useNotesStore();
   const [selectedFilter, setSelectedFilter] = useState('All');
 
   React.useEffect(() => {
@@ -46,28 +46,19 @@ export function NotesListScreen() {
 
   return (
     <AppScreen>
-      {/* Hero header */}
-      <View style={styles.hero}>
-        <View style={styles.heroTop}>
-          <View>
-            <AppText variant="display">Notes</AppText>
-            <AppText variant="body" color={colors.gray400} style={styles.subtitle}>
-              Capture ideas, drafts, and tagged notes.
-            </AppText>
-          </View>
-          <AppButton title="+ New" variant="soft" size="sm" onPress={handleCreate} />
-        </View>
+      {/* Compact header */}
+      <View style={styles.header}>
+        <AppText variant="h2">Notes</AppText>
+        <AppButton title="+ New" variant="ghost" size="sm" onPress={handleCreate} />
       </View>
 
-      {/* Search bar */}
-      <View style={styles.searchContainer}>
-        <AppInput
-          variant="search"
-          placeholder="Search notes…"
-          editable={false}
-          style={styles.search}
-        />
-      </View>
+      {/* Search */}
+      <AppInput
+        variant="search"
+        placeholder="Search"
+        editable={false}
+        style={styles.search}
+      />
 
       {/* Filter chips */}
       <View style={styles.chipRow}>
@@ -81,12 +72,6 @@ export function NotesListScreen() {
         ))}
       </View>
 
-      {error && (
-        <AppText variant="caption" color={colors.error} style={styles.error}>
-          {error}
-        </AppText>
-      )}
-
       {/* Notes list */}
       <FlatList
         data={filteredNotes}
@@ -97,10 +82,9 @@ export function NotesListScreen() {
         ListEmptyComponent={
           !loading ? (
             <AppEmptyState
-              icon="✦"
-              title="No notes yet"
-              description="Create your first note to get started."
-              action={<AppButton title="Create Note" onPress={handleCreate} />}
+              title="No notes"
+              description="Tap + New to create your first note."
+              action={<AppButton title="New Note" onPress={handleCreate} size="sm" />}
             />
           ) : null
         }
@@ -110,31 +94,21 @@ export function NotesListScreen() {
 }
 
 const styles = StyleSheet.create({
-  hero: {
-    marginBottom: spacing.md,
-  },
-  heroTop: {
+  header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
   },
-  subtitle: {
-    marginTop: spacing.xs,
+  search: {
+    marginBottom: spacing.sm,
   },
-  searchContainer: {
-    marginBottom: spacing.sm + 2,
-  },
-  search: {},
   chipRow: {
     flexDirection: 'row',
     gap: spacing.sm,
-    marginBottom: spacing.md,
-    flexWrap: 'wrap',
+    marginBottom: spacing.sm,
   },
   list: {
     paddingBottom: spacing.xxl,
-  },
-  error: {
-    marginBottom: spacing.sm,
   },
 });

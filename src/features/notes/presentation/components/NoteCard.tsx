@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { AppText, AppBadge } from '../../../../core/design-system';
-import { colors, spacing, radius, shadows, typography } from '../../../../core/theme';
+import { colors, spacing, typography } from '../../../../core/theme';
 import type { Note } from '../../domain/entities';
 
 interface NoteCardProps {
@@ -10,7 +10,7 @@ interface NoteCardProps {
 }
 
 export function NoteCard({ note, onPress }: NoteCardProps) {
-  const preview = note.body.length > 140 ? `${note.body.slice(0, 140)}…` : note.body;
+  const preview = note.body.length > 100 ? `${note.body.slice(0, 100)}…` : note.body;
   const relativeDate = getRelativeDate(note.updatedAt);
 
   return (
@@ -19,46 +19,31 @@ export function NoteCard({ note, onPress }: NoteCardProps) {
       accessibilityRole="button"
       style={({ pressed }) => [styles.wrapper, pressed && styles.pressed]}
     >
-      <View style={styles.card}>
-        {/* Title row */}
-        <View style={styles.titleRow}>
-          <AppText variant="h3" style={styles.title} numberOfLines={1}>
+      <View style={styles.row}>
+        <View style={styles.content}>
+          <AppText variant="body" style={styles.title} numberOfLines={1}>
             {note.title}
           </AppText>
-          {note.isArchived && (
-            <View style={styles.archivedDot}>
-              <AppText style={styles.archivedIcon}>↗</AppText>
-            </View>
-          )}
-        </View>
-
-        {/* Body preview */}
-        <AppText
-          variant="body"
-          color={colors.gray500}
-          numberOfLines={2}
-          style={styles.body}
-        >
-          {preview}
-        </AppText>
-
-        {/* Footer: tags + time */}
-        <View style={styles.footer}>
-          <View style={styles.tags}>
-            {note.tags.slice(0, 3).map((tag) => (
-              <AppBadge key={tag} label={tag} />
-            ))}
-            {note.tags.length > 3 && (
-              <AppText variant="caption" color={colors.gray400}>
-                +{note.tags.length - 3}
-              </AppText>
-            )}
-          </View>
-          <AppText variant="caption" color={colors.gray400}>
-            {relativeDate}
+          <AppText
+            variant="caption"
+            color={colors.gray500}
+            numberOfLines={1}
+            style={styles.preview}
+          >
+            {preview}
           </AppText>
         </View>
+        <AppText variant="caption" color={colors.gray400} style={styles.time}>
+          {relativeDate}
+        </AppText>
       </View>
+      {note.tags.length > 0 && (
+        <View style={styles.tagsRow}>
+          {note.tags.slice(0, 3).map((tag) => (
+            <AppBadge key={tag} label={tag} />
+          ))}
+        </View>
+      )}
     </Pressable>
   );
 }
@@ -71,65 +56,45 @@ function getRelativeDate(isoDate: string): string {
   const diffHr = Math.floor(diffMin / 60);
   const diffDay = Math.floor(diffHr / 24);
 
-  if (diffMin < 1) return 'just now';
-  if (diffMin < 60) return `${diffMin}m ago`;
-  if (diffHr < 24) return `${diffHr}h ago`;
-  if (diffDay < 7) return `${diffDay}d ago`;
-  return date.toLocaleDateString();
+  if (diffMin < 1) return 'now';
+  if (diffMin < 60) return `${diffMin}m`;
+  if (diffHr < 24) return `${diffHr}h`;
+  if (diffDay < 7) return `${diffDay}d`;
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
 const styles = StyleSheet.create({
   wrapper: {
-    marginBottom: spacing.sm + 2,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    ...shadows.sm,
+    paddingVertical: spacing.sm + 2,
+    paddingHorizontal: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.divider,
   },
   pressed: {
-    opacity: 0.85,
-    transform: [{ scale: 0.995 }],
+    backgroundColor: colors.gray50,
   },
-  card: {
-    padding: spacing.md,
-  },
-  titleRow: {
+  row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.xs,
+    alignItems: 'flex-start',
   },
-  title: {
+  content: {
     flex: 1,
     marginRight: spacing.sm,
-    fontSize: typography.sizes.lg,
   },
-  archivedDot: {
-    width: 24,
-    height: 24,
-    borderRadius: radius.full,
-    backgroundColor: colors.gray100,
-    alignItems: 'center',
-    justifyContent: 'center',
+  title: {
+    fontWeight: typography.weights.semibold,
+    marginBottom: spacing.xxs,
   },
-  archivedIcon: {
-    fontSize: 12,
-    color: colors.gray400,
+  preview: {
+    lineHeight: typography.sizes.sm * typography.lineHeights.normal,
   },
-  body: {
-    marginBottom: spacing.sm + 2,
-    lineHeight: typography.sizes.md * typography.lineHeights.relaxed,
+  time: {
+    marginTop: 2,
   },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  tags: {
+  tagsRow: {
     flexDirection: 'row',
     gap: spacing.xs,
-    flex: 1,
-    flexWrap: 'wrap',
+    marginTop: spacing.xs,
   },
 });
