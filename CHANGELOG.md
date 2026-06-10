@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] — 2025-XX-XX
+
+### Added
+
+- `ScreenHeader` reusable layout component with back button, title, subtitle, and right action
+- `AppScreen` now handles bottom safe area for home indicator
+- `AppCard` now supports `variant` prop: `default`, `flat`, `elevated`
+- Demo data seeded on first launch (5 notes with realistic content)
+- `src/features/notes/data/seed.ts` — stable demo note generator
+
+### Changed
+
+- Notes list screen: added product-style subtitle, integrated `ScreenHeader`
+- Create note screen: form wrapped in `AppCard`, added helper text for tags, improved layout
+- Note detail screen: metadata in flat card with divider, better badge layout, improved archive/unarchive messaging
+- NoteCard: better body preview length, overflow indicator for tags, press opacity feedback
+- Root layout: added gesture support and animation duration tuning
+- Safe area now covers all four edges (top, bottom, left, right)
+
 ## [1.0.0] — 2025-01-XX
 
 ### Added

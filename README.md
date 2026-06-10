@@ -19,9 +19,10 @@ A production-quality React Native notes app demonstrating clean architecture, ty
 
 ## Features (v1 — First Slice)
 
-- ✅ Notes list screen with empty state
+- ✅ Notes list screen with empty state and demo data
 - ✅ Create note with form validation
 - ✅ Note detail view with archive and delete
+- ✅ Reusable screen layout primitives (AppScreen, ScreenHeader)
 - ✅ Design system primitives (AppText, AppButton, AppInput, AppCard, AppBadge, AppEmptyState)
 - ✅ Typed theme tokens (colors, spacing, typography, radius)
 - ✅ Domain entities and repository interface
@@ -62,7 +63,8 @@ src/
 ├── features/
 │   └── notes/
 │       ├── data/
-│       │   └── repositories/ # InMemoryNotesRepository
+│       │   ├── repositories/ # InMemoryNotesRepository
+│       │   └── seed.ts       # Demo notes for first launch
 │       ├── domain/
 │       │   ├── entities/     # Note, CreateNoteInput, UpdateNoteInput
 │       │   ├── repositories/ # NotesRepository interface
@@ -142,7 +144,14 @@ Tests cover:
 - All 6 use cases — happy path + validation errors
 - `createNoteSchema` — Zod validation rules
 - `parseTagsString` — tag parsing utility
-- `AppEmptyState` — component rendering
+
+## Screenshots
+
+| Notes List | Create Note | Note Detail |
+| :--------: | :---------: | :---------: |
+| ![Notes List](docs/screenshots/notes-list.png) | ![Create Note](docs/screenshots/create-note.png) | ![Note Detail](docs/screenshots/note-detail.png) |
+
+> Screenshots are placeholders. Run the app on a device or simulator to see the polished UI.
 
 ## AI Usage Disclosure
 
@@ -153,14 +162,6 @@ See [AI_USAGE.md](./AI_USAGE.md) for details.
 ## Roadmap
 
 See [ROADMAP.md](./ROADMAP.md) for planned features and milestones.
-
-## Screenshots
-
-> Coming soon — screenshots will be added after the first device test.
-
-| Notes List | Create Note | Note Detail |
-| :--------: | :---------: | :---------: |
-|  _image_   |   _image_   |   _image_   |
 
 ## License
 

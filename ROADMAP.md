@@ -1,6 +1,14 @@
 # Roadmap
 
-## v1.0 — First Slice (Current)
+## v1.1 — UI Polish (Current)
+
+- [x] Reusable screen layout components (AppScreen, ScreenHeader)
+- [x] Notes list with demo data, subtitle, and polished cards
+- [x] Create note screen with card-wrapped form and helper text
+- [x] Note detail screen with metadata card and better hierarchy
+- [x] Navigation gesture support and animation tuning
+
+## v1.0 — First Slice
 
 - [x] Expo + TypeScript project setup
 - [x] Expo Router routing
