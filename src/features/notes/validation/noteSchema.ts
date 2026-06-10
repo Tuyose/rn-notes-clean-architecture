@@ -1,26 +1,26 @@
 import { z } from 'zod';
 
 /**
- * Zod schema for creating a note.
- * Used by React Hook Form via @hookform/resolvers/zod.
+ * Zod schema for creating/editing a note.
+ * Body is optional — allows saving drafts with just a title.
  */
-export const createNoteSchema = z.object({
+export const noteFormSchema = z.object({
   title: z
     .string()
     .min(1, 'Title is required')
     .max(100, 'Title must be 100 characters or less'),
-  body: z
-    .string()
-    .min(1, 'Body is required')
-    .max(5000, 'Body must be 5000 characters or less'),
+  body: z.string().max(5000, 'Body must be 5000 characters or less').optional(),
   tags: z.string().optional(),
 });
 
-export type CreateNoteFormData = z.infer<typeof createNoteSchema>;
+export type NoteFormData = z.infer<typeof noteFormSchema>;
+
+/** @deprecated Use noteFormSchema instead */
+export const createNoteSchema = noteFormSchema;
+export type CreateNoteFormData = NoteFormData;
 
 /**
  * Convert comma-separated tags string to array.
- * Shared utility for the presentation layer.
  */
 export function parseTagsString(tags?: string): string[] {
   if (!tags?.trim()) return [];
@@ -28,4 +28,11 @@ export function parseTagsString(tags?: string): string[] {
     .split(',')
     .map((tag) => tag.trim())
     .filter((tag) => tag.length > 0);
+}
+
+/**
+ * Convert tags array to comma-separated string.
+ */
+export function tagsToString(tags: string[]): string {
+  return tags.join(', ');
 }

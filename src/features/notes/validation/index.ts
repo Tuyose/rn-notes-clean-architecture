@@ -1,2 +1,7 @@
-export { createNoteSchema, parseTagsString } from './noteSchema';
-export type { CreateNoteFormData } from './noteSchema';
+export {
+  noteFormSchema,
+  createNoteSchema,
+  parseTagsString,
+  tagsToString,
+} from './noteSchema';
+export type { NoteFormData, CreateNoteFormData } from './noteSchema';
