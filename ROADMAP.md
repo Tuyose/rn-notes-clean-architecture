@@ -1,6 +1,16 @@
 # Roadmap
 
-## v1.4 — Unified Editor & Sorting (Current)
+## v0.2.0 — Local Persistence and Filtering (Current)
+
+- [x] AsyncStorage persistence via `AsyncStorageNotesRepository`
+- [x] Repository factory pattern
+- [x] Store hydration on startup
+- [x] Real search (title, body, tags)
+- [x] Real tag filtering with dynamic chips
+- [x] Search + tag filtering combined
+- [x] 84 tests covering persistence and filtering
+
+## v1.4 — Unified Editor & Sorting
 
 - [x] Unified note editor for both creating and editing notes
 - [x] Notes sorted by `updatedAt` descending — recent notes at top

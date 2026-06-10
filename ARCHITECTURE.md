@@ -124,12 +124,40 @@ Notes are sorted by `updatedAt` descending at the repository level:
 4. Create `src/features/<name>/presentation/` with screens, components, store
 5. Add routes in `app/`
 
+## Repository Factory
+
+The data layer uses a factory pattern:
+
+- `createNotesRepository()` returns `AsyncStorageNotesRepository` — production
+- `createTestRepository()` returns `InMemoryNotesRepository` — tests
+
+The store imports from the factory, never from a specific repository class directly.
+
+## Persistence (AsyncStorage)
+
+`AsyncStorageNotesRepository` implements `NotesRepository`:
+
+- Notes are stored as JSON under key `rn-notes-clean-architecture:notes`
+- `hydrate()` must be called before any other method
+- First launch seeds demo notes automatically
+- Corrupted JSON falls back to demo notes
+- All mutations persist to AsyncStorage
+
+## Search and Filtering
+
+The NotesListScreen implements client-side filtering:
+
+- **Search**: Case-insensitive matching against title, body, and tags
+- **Tag chips**: Dynamically derived from current notes
+- **Combined**: Search and tag filters work together (AND logic)
+- Filtering is pure — the source notes list is never mutated
+
 ## Adding Persistence
 
-To replace InMemoryNotesRepository with AsyncStorage or SQLite:
+To swap persistence (e.g., AsyncStorage → SQLite):
 
 1. Create a new class implementing `NotesRepository`
-2. Update the store to use the new implementation
+2. Update `createNotesRepository()` in the factory
 3. No changes needed in use cases, screens, or components
 
 ## Design System

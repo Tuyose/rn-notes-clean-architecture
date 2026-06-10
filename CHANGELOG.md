@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] — 2025-XX-XX
+
+### Added
+
+- AsyncStorage persistence via `AsyncStorageNotesRepository`
+- Repository factory (`createNotesRepository`, `createTestRepository`)
+- Store hydration on app startup
+- Error state with retry in notes list
+- Real search: filter by title, body, tags (case-insensitive)
+- Real tag filtering: dynamic chips from current notes
+- Search and tag filtering work together
+- Empty filtered state: "No matching notes" with clear action
+- `AsyncStorageNotesRepository` tests with mocked AsyncStorage
+- Filtering tests (search, tags, combined)
+
+### Changed
+
+- Store now uses `createNotesRepository()` factory instead of direct `InMemoryNotesRepository`
+- NotesListScreen search bar is now functional
+- Tag chips are dynamically derived from note tags
+- Data layer now has two repository implementations
+
 ## [1.4.0] — 2025-XX-XX
 
 ### Added
