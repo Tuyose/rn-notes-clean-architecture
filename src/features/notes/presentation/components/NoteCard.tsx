@@ -10,27 +10,45 @@ interface NoteCardProps {
 }
 
 export function NoteCard({ note, onPress }: NoteCardProps) {
-  const preview = note.body.length > 100 ? `${note.body.slice(0, 100)}...` : note.body;
-
+  const preview = note.body.length > 120 ? `${note.body.slice(0, 120)}...` : note.body;
   const relativeDate = getRelativeDate(note.updatedAt);
 
   return (
-    <Pressable onPress={() => onPress(note)} accessibilityRole="button">
-      <AppCard style={styles.card}>
-        <View style={styles.header}>
+    <Pressable
+      onPress={() => onPress(note)}
+      accessibilityRole="button"
+      style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
+    >
+      <AppCard variant="default" style={styles.card}>
+        {/* Title row */}
+        <View style={styles.titleRow}>
           <AppText variant="h3" style={styles.title} numberOfLines={1}>
             {note.title}
           </AppText>
           {note.isArchived && <AppBadge label="Archived" color={colors.gray500} />}
         </View>
-        <AppText variant="body" color={colors.gray600} numberOfLines={2}>
+
+        {/* Body preview */}
+        <AppText
+          variant="body"
+          color={colors.gray600}
+          numberOfLines={2}
+          style={styles.body}
+        >
           {preview}
         </AppText>
+
+        {/* Footer: tags + time */}
         <View style={styles.footer}>
           <View style={styles.tags}>
             {note.tags.slice(0, 3).map((tag) => (
               <AppBadge key={tag} label={tag} />
             ))}
+            {note.tags.length > 3 && (
+              <AppText variant="caption" color={colors.gray400}>
+                +{note.tags.length - 3}
+              </AppText>
+            )}
           </View>
           <AppText variant="caption" color={colors.gray400}>
             {relativeDate}
@@ -45,7 +63,7 @@ function getRelativeDate(isoDate: string): string {
   const now = new Date();
   const date = new Date(isoDate);
   const diffMs = now.getTime() - date.getTime();
-  const diffMin = Math.floor(diffMs / 60000);
+  const diffMin = Math.floor(diffMs / 60_000);
   const diffHr = Math.floor(diffMin / 60);
   const diffDay = Math.floor(diffHr / 24);
 
@@ -60,7 +78,7 @@ const styles = StyleSheet.create({
   card: {
     marginBottom: spacing.sm,
   },
-  header: {
+  titleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -71,15 +89,18 @@ const styles = StyleSheet.create({
     marginRight: spacing.sm,
     fontSize: typography.sizes.lg,
   },
+  body: {
+    marginBottom: spacing.sm,
+  },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: spacing.sm,
   },
   tags: {
     flexDirection: 'row',
     gap: spacing.xs,
     flex: 1,
+    flexWrap: 'wrap',
   },
 });

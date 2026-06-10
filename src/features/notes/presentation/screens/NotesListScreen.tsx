@@ -7,6 +7,7 @@ import {
   AppInput,
   AppEmptyState,
   AppScreen,
+  ScreenHeader,
 } from '../../../../core/design-system';
 import { colors, spacing } from '../../../../core/theme';
 import { NoteCard } from '../components';
@@ -36,18 +37,19 @@ export function NotesListScreen() {
 
   return (
     <AppScreen>
-      <View style={styles.header}>
-        <AppText variant="h1">Notes</AppText>
-        <AppButton title="+ New" size="sm" onPress={handleCreate} />
-      </View>
+      <ScreenHeader
+        title="Notes"
+        subtitle="Capture ideas, drafts, and tagged notes."
+        rightAction={<AppButton title="+ New" size="sm" onPress={handleCreate} />}
+      />
 
       {/* Search placeholder */}
       <AppInput placeholder="Search notes..." editable={false} style={styles.search} />
 
       {/* Tags filter placeholder */}
-      <View style={styles.filterPlaceholder}>
+      <View style={styles.filterRow}>
         <AppText variant="caption" color={colors.gray400}>
-          Tags filter coming soon...
+          Tags filter coming soon…
         </AppText>
       </View>
 
@@ -62,6 +64,7 @@ export function NotesListScreen() {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <NoteCard note={item} onPress={handleNotePress} />}
         contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           !loading ? (
             <AppEmptyState
@@ -78,16 +81,10 @@ export function NotesListScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
   search: {
     marginBottom: spacing.sm,
   },
-  filterPlaceholder: {
+  filterRow: {
     marginBottom: spacing.md,
     paddingVertical: spacing.xs,
   },

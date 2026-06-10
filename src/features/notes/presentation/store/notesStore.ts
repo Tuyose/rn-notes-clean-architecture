@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { Note, CreateNoteInput } from '../../domain/entities';
 import { InMemoryNotesRepository } from '../../data/repositories';
+import { createDemoNotes } from '../../data/seed';
 import {
   GetNotesUseCase,
   GetNoteByIdUseCase,
@@ -14,6 +15,9 @@ import {
  * Replace with a factory when adding persistence.
  */
 const repository = new InMemoryNotesRepository();
+
+// Seed demo data on first load so the app never starts completely empty.
+repository.seed(createDemoNotes());
 
 const getNotesUseCase = new GetNotesUseCase(repository);
 const getNoteByIdUseCase = new GetNoteByIdUseCase(repository);
