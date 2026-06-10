@@ -16,14 +16,21 @@ export function AppEmptyState({ title, description, icon, action }: AppEmptyStat
       <View style={styles.iconContainer}>
         {icon && <AppText style={styles.icon}>{icon}</AppText>}
       </View>
-      <AppText variant="h3" color={colors.gray700} align="center">
-        {title}
-      </AppText>
-      {description && (
-        <AppText variant="body" color={colors.gray500} align="center">
-          {description}
+      <View style={styles.textBlock}>
+        <AppText variant="h2" color={colors.gray800} align="center">
+          {title}
         </AppText>
-      )}
+        {description && (
+          <AppText
+            variant="body"
+            color={colors.gray400}
+            align="center"
+            style={styles.description}
+          >
+            {description}
+          </AppText>
+        )}
+      </View>
       {action && <View style={styles.action}>{action}</View>}
     </View>
   );
@@ -35,21 +42,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: spacing.xl,
-    gap: spacing.sm,
   },
   iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: radius.xl,
-    backgroundColor: colors.gray100,
+    width: 72,
+    height: 72,
+    borderRadius: radius.xxl,
+    backgroundColor: colors.primarySurface,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.sm,
+    marginBottom: spacing.lg,
   },
   icon: {
-    fontSize: 36,
+    fontSize: 32,
   },
-  action: {
-    marginTop: spacing.md,
+  textBlock: {
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
   },
+  description: {
+    maxWidth: 260,
+  },
+  action: {},
 });

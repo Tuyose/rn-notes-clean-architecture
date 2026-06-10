@@ -10,24 +10,23 @@ interface ScreenHeaderProps {
   onBack?: () => void;
   /** Right-side action element (button, icon, etc). */
   rightAction?: React.ReactNode;
+  /** Use the larger display style for the title. */
+  large?: boolean;
 }
 
 /**
  * Consistent screen header used across all screens.
- *
- * Layout: optional back button | title + subtitle | optional right action.
- * Safe area is handled by the parent AppScreen — this component only
- * handles visual spacing and hierarchy.
  */
 export function ScreenHeader({
   title,
   subtitle,
   onBack,
   rightAction,
+  large = false,
 }: ScreenHeaderProps) {
   return (
     <View style={styles.container}>
-      <View style={styles.row}>
+      <View style={styles.topRow}>
         {onBack && (
           <Pressable
             onPress={onBack}
@@ -35,22 +34,18 @@ export function ScreenHeader({
             accessibilityRole="button"
             accessibilityLabel="Go back"
           >
-            <AppText variant="body" color={colors.primary} style={styles.backArrow}>
-              ‹
-            </AppText>
+            <AppText style={styles.backChevron}>‹</AppText>
           </Pressable>
         )}
-        <View style={styles.titleBlock}>
-          <AppText variant="h1" numberOfLines={1}>
-            {title}
-          </AppText>
-          {subtitle && (
-            <AppText variant="body" color={colors.gray500} style={styles.subtitle}>
-              {subtitle}
-            </AppText>
-          )}
-        </View>
         {rightAction && <View style={styles.rightAction}>{rightAction}</View>}
+      </View>
+      <View style={styles.titleBlock}>
+        <AppText variant={large ? 'display' : 'h1'}>{title}</AppText>
+        {subtitle && (
+          <AppText variant="body" color={colors.gray400} style={styles.subtitle}>
+            {subtitle}
+          </AppText>
+        )}
       </View>
     </View>
   );
@@ -58,30 +53,27 @@ export function ScreenHeader({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: spacing.md,
+    marginBottom: spacing.lg,
   },
-  row: {
+  topRow: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: spacing.sm,
   },
   backButton: {
-    marginRight: spacing.sm,
     padding: spacing.xs,
-    marginLeft: -spacing.xs, // compensate visual weight
+    marginLeft: -spacing.xs,
   },
-  backArrow: {
+  backChevron: {
     fontSize: typography.sizes.xxxl,
-    fontWeight: typography.weights.regular,
-    lineHeight: typography.sizes.xxxl,
     color: colors.primary,
+    fontWeight: '300',
+    lineHeight: typography.sizes.xxxl,
   },
-  titleBlock: {
-    flex: 1,
-  },
+  rightAction: {},
+  titleBlock: {},
   subtitle: {
-    marginTop: 2,
-  },
-  rightAction: {
-    marginLeft: spacing.sm,
+    marginTop: spacing.xs,
   },
 });

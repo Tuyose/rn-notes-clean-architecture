@@ -16,9 +16,6 @@ interface AppScreenProps {
 
 /**
  * Standard screen wrapper that respects safe area insets on all edges.
- *
- * Every screen in the app should be wrapped in this component to prevent
- * content from colliding with the status bar, notch, or home indicator.
  */
 export function AppScreen({
   children,
@@ -48,9 +45,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   horizontalPadding: {
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.lg,
   },
   verticalPadding: {
-    paddingTop: spacing.sm,
+    paddingTop: spacing.md,
   },
 });

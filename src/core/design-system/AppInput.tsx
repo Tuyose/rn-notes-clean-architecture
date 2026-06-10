@@ -6,25 +6,32 @@ import { colors, radius, spacing, typography } from '../theme';
 interface AppInputProps extends TextInputProps {
   label?: string;
   error?: string;
+  /** Visual style variant. */
+  variant?: 'default' | 'search';
 }
 
 export const AppInput = forwardRef<TextInput, AppInputProps>(
-  ({ label, error, style, ...rest }, ref) => {
+  ({ label, error, variant = 'default', style, ...rest }, ref) => {
     return (
       <View style={styles.container}>
         {label && (
-          <AppText variant="label" color={colors.gray600} style={styles.label}>
+          <AppText variant="label" color={colors.gray500} style={styles.label}>
             {label}
           </AppText>
         )}
         <TextInput
           ref={ref}
-          style={[styles.input, error && styles.inputError, style]}
+          style={[
+            styles.input,
+            variantStyles[variant],
+            error && styles.inputError,
+            style,
+          ]}
           placeholderTextColor={colors.gray400}
           {...rest}
         />
         {error && (
-          <AppText variant="caption" color={colors.error} style={styles.error}>
+          <AppText variant="caption" color={colors.error} style={styles.errorText}>
             {error}
           </AppText>
         )}
@@ -35,27 +42,36 @@ export const AppInput = forwardRef<TextInput, AppInputProps>(
 
 AppInput.displayName = 'AppInput';
 
+const variantStyles = StyleSheet.create({
+  default: {},
+  search: {
+    backgroundColor: colors.surfaceMuted,
+    borderWidth: 0,
+    borderRadius: radius.lg,
+  },
+});
+
 const styles = StyleSheet.create({
   container: {
     gap: spacing.xs,
   },
   label: {
-    marginBottom: spacing.xs,
+    marginBottom: spacing.xxs,
   },
   input: {
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.sm + 2,
     fontSize: typography.sizes.md,
     color: colors.gray900,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
   },
   inputError: {
     borderColor: colors.error,
   },
-  error: {
-    marginTop: spacing.xs,
+  errorText: {
+    marginTop: spacing.xxs,
   },
 });
