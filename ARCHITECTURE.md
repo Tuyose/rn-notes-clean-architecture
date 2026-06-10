@@ -98,6 +98,24 @@ Zustand is used for feature state. The store:
 
 This keeps the store as a thin orchestration layer.
 
+## Unified Note Editor
+
+The app uses a single `NoteEditorScreen` for both creating and editing notes:
+
+- `CreateNoteScreen` renders `<NoteEditorScreen />` (no existing note)
+- `NoteDetailScreen` loads the note, then renders `<NoteEditorScreen note={note} />`
+- The editor handles both `CreateNoteUseCase` and `UpdateNoteUseCase` based on whether a note is passed
+- Dirty tracking shows "Unsaved" when content differs from the original
+
+## Sorting by Recent Updates
+
+Notes are sorted by `updatedAt` descending at the repository level:
+
+- `getNotes()` sorts before returning
+- `createNote()` inserts at the top of the array
+- `updateNote()` removes from old position and inserts at the top
+- This ensures recently created and edited notes always appear first
+
 ## Adding a New Feature
 
 1. Create `src/features/<name>/domain/` with entities and repository interface

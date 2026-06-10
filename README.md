@@ -19,16 +19,14 @@ A React Native notes app demonstrating clean architecture, typed domain models, 
 
 ## Features
 
-- Notes inbox with compact list, search bar, and tag filter chips
-- Note editor with borderless title/body fields and save-in-header
-- Note reader with readable body, subtle metadata, and secondary actions
-- Design system primitives (AppText, AppButton, AppInput, AppCard, AppBadge, AppEmptyState, AppScreen, ScreenHeader)
-- Typed design tokens (colors, spacing, typography, radius, shadows)
-- Domain entities and repository interface
-- In-memory repository implementation
-- Use case layer with business rules
-- Zustand store for state management
-- Unit tests for domain, use cases, validation, and repository
+- **Notes inbox** — compact list sorted by most recent, tag filter chips, search placeholder
+- **Unified editor** — create and edit notes in the same screen, dirty tracking, save feedback
+- **In-memory storage** — notes are stored in memory and sorted by `updatedAt` descending
+- **Swappable repository** — replace `InMemoryNotesRepository` with AsyncStorage/SQLite without changing the rest of the app
+- **Clean architecture** — domain entities, repository interfaces, use cases, and presentation layers are fully separated
+- **Typed design system** — AppText, AppButton, AppInput, AppCard, AppBadge, AppEmptyState, AppScreen, ScreenHeader
+- **Validation** — Zod schemas with React Hook Form integration
+- **Tests** — 50 tests covering repository, use cases, validation, and sorting behavior
 
 ## Architecture
 
@@ -45,11 +43,30 @@ Presentation (screens, components, store)
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for full details.
 
+## How the Unified Editor Works
+
+The app uses a single `NoteEditorScreen` for both creating and editing notes:
+
+- **New note**: Opens with empty fields. Save calls `CreateNoteUseCase`.
+- **Existing note**: Opens with pre-filled title, body, and tags. Save calls `UpdateNoteUseCase`.
+- **Dirty tracking**: Shows "Unsaved" hint when content changes.
+- **Saved feedback**: Button text briefly changes to "Saved" after saving.
+- **Actions**: Archive and delete are available for existing notes as secondary actions.
+
+## How Sorting Works
+
+Notes are sorted by `updatedAt` descending in the repository layer:
+
+- `getNotes()` returns notes sorted by most recently updated first.
+- `createNote()` inserts new notes at the top.
+- `updateNote()` moves the updated note to the top.
+- This means newly created and recently edited notes always appear at the top of the list.
+
 ## Screenshots
 
-| Notes Inbox | Note Editor | Note Reader |
-| :---------: | :---------: | :---------: |
-| ![Notes Inbox](docs/screenshots/notes-inbox.png) | ![Note Editor](docs/screenshots/note-editor.png) | ![Note Reader](docs/screenshots/note-reader.png) |
+| Notes Inbox | Note Editor (New) | Note Editor (Existing) |
+| :---------: | :----------------: | :--------------------: |
+| ![Notes Inbox](docs/screenshots/notes-inbox.png) | ![New Note](docs/screenshots/note-editor-new.png) | ![Edit Note](docs/screenshots/note-editor-existing.png) |
 
 > Screenshots are placeholders. Run the app on a device or simulator to see the UI.
 

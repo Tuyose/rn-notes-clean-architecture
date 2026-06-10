@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] — 2025-XX-XX
+
+### Added
+
+- Unified `NoteEditorScreen` for both creating and editing notes
+- `NoteListItem` component replacing `NoteCard` in the inbox list
+- `updateNote` action in Zustand store
+- `UpdateNoteUseCase` now wired through the store
+- `tagsToString` utility for converting tag arrays to comma-separated strings
+- Dirty tracking with "Unsaved" hint in the editor
+- Saved feedback (button text changes to "Saved" briefly)
+- Sorting by `updatedAt` descending — recent notes always at top
+- New tests for sorting behavior and `tagsToString`
+
+### Changed
+
+- `getNotes()` now returns notes sorted by `updatedAt` descending
+- `createNote()` inserts new notes at the top of the array
+- `updateNote()` moves the updated note to the top
+- `CreateNoteScreen` delegates to `NoteEditorScreen`
+- `NoteDetailScreen` loads note then delegates to `NoteEditorScreen`
+- `noteFormSchema` makes body optional (allows saving drafts)
+- Navigation uses `ios_from_right` animation with full-screen gesture support
+- Test count increased from 41 to 50
+
 ## [1.3.0] — 2025-XX-XX
 
 ### Changed

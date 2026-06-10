@@ -1,6 +1,17 @@
 # Roadmap
 
-## v1.3 — UX Correction (Current)
+## v1.4 — Unified Editor & Sorting (Current)
+
+- [x] Unified note editor for both creating and editing notes
+- [x] Notes sorted by `updatedAt` descending — recent notes at top
+- [x] Dirty tracking with "Unsaved" hint
+- [x] Saved feedback after saving
+- [x] `updateNote` action in store
+- [x] `ios_from_right` navigation animation
+- [x] Body optional in validation (drafts allowed)
+- [x] 50 tests covering sorting and editor behavior
+
+## v1.3 — UX Correction
 
 - [x] Notes list redesigned as compact inbox (flat rows, dividers, minimal spacing)
 - [x] Note editor with borderless title/body, save in header, no form card
