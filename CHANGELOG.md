@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] — 2025-XX-XX
+
+### Changed
+
+- Notes list redesigned as a compact inbox: flatter rows, minimal spacing, divider-separated
+- NoteCard: row-based layout with title + preview + time, tags below, no card wrapper
+- NotesListScreen: compact h2 header, integrated search, dark chip selection
+- CreateNoteScreen: note editor with borderless title/body, save in header, no bottom buttons
+- NoteDetailScreen: readable page layout, subtle metadata, secondary actions at bottom
+- Design tokens: warm gray neutrals, removed bright purple, muted accents, minimal shadows
+- AppButton: primary uses gray900 instead of bright purple, danger is ghost-style
+- AppBadge: selected state uses dark gray, smaller padding
+- AppEmptyState: simplified, no icon container
+- ScreenHeader: compact h3 title, subtle back chevron
+- AppInput: added borderless variant
+- Seed data: realistic short notes (checklist, grocery list, quick ideas)
+- Removed unused `min` variable from seed data
+
 ## [1.2.0] — 2025-XX-XX
 
 ### Changed

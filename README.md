@@ -1,8 +1,8 @@
 # rn-notes-clean-architecture
 
-A production-quality React Native notes app demonstrating clean architecture, typed domain models, repository pattern, form validation, and testing best practices.
+A React Native notes app demonstrating clean architecture, typed domain models, repository pattern, form validation, and testing best practices.
 
-> This is a portfolio project built to showcase real-world app structure and engineering discipline.
+> Portfolio project showcasing real-world app structure and engineering discipline.
 
 ## Tech Stack
 
@@ -19,21 +19,20 @@ A production-quality React Native notes app demonstrating clean architecture, ty
 
 ## Features
 
-- ✅ Modern notes list with hero header, search bar, and tag filter chips
-- ✅ Polished note cards with title, body preview, tag badges, and timestamps
-- ✅ Create note screen with clean editor layout and save-in-header
-- ✅ Note detail screen with readable body, metadata, and archive/delete actions
-- ✅ Design system primitives (AppText, AppButton, AppInput, AppCard, AppBadge, AppEmptyState, AppScreen, ScreenHeader)
-- ✅ Typed design tokens (colors, spacing, typography, radius, shadows)
-- ✅ Domain entities and repository interface
-- ✅ In-memory repository implementation
-- ✅ Use case layer with business rules
-- ✅ Zustand store for state management
-- ✅ Unit tests for domain, use cases, validation, and repository
+- Notes inbox with compact list, search bar, and tag filter chips
+- Note editor with borderless title/body fields and save-in-header
+- Note reader with readable body, subtle metadata, and secondary actions
+- Design system primitives (AppText, AppButton, AppInput, AppCard, AppBadge, AppEmptyState, AppScreen, ScreenHeader)
+- Typed design tokens (colors, spacing, typography, radius, shadows)
+- Domain entities and repository interface
+- In-memory repository implementation
+- Use case layer with business rules
+- Zustand store for state management
+- Unit tests for domain, use cases, validation, and repository
 
 ## Architecture
 
-This project follows **feature-first clean architecture** with clear layer boundaries:
+Feature-first clean architecture with clear layer boundaries:
 
 ```
 Domain (entities, repository contracts, use cases)
@@ -46,127 +45,36 @@ Presentation (screens, components, store)
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for full details.
 
-## Folder Structure
+## Screenshots
 
-```
-app/                          # Expo Router routes
-├── _layout.tsx               # Root layout
-├── index.tsx                 # Home → NotesListScreen
-└── notes/
-    ├── [id].tsx              # Note detail route
-    └── new.tsx               # Create note route
+| Notes Inbox | Note Editor | Note Reader |
+| :---------: | :---------: | :---------: |
+| ![Notes Inbox](docs/screenshots/notes-inbox.png) | ![Note Editor](docs/screenshots/note-editor.png) | ![Note Reader](docs/screenshots/note-reader.png) |
 
-src/
-├── core/
-│   ├── design-system/        # Reusable UI primitives
-│   └── theme/                # Design tokens
-├── features/
-│   └── notes/
-│       ├── data/
-│       │   ├── repositories/ # InMemoryNotesRepository
-│       │   └── seed.ts       # Demo notes for first launch
-│       ├── domain/
-│       │   ├── entities/     # Note, CreateNoteInput, UpdateNoteInput
-│       │   ├── repositories/ # NotesRepository interface
-│       │   └── use-cases/    # GetNotes, CreateNote, etc.
-│       ├── presentation/
-│       │   ├── components/   # NoteCard
-│       │   ├── screens/      # List, Create, Detail
-│       │   └── store/        # Zustand notes store
-│       └── validation/       # Zod schemas
-├── types/                    # Shared utility types
-├── utils/                    # Shared utilities
-└── __tests__/                # All test files
-```
+> Screenshots are placeholders. Run the app on a device or simulator to see the UI.
 
 ## Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- npm or yarn
-- Expo CLI (`npm install -g expo-cli`)
-
-### Installation
 
 ```bash
 git clone https://github.com/your-username/rn-notes-clean-architecture.git
 cd rn-notes-clean-architecture
 npm install
-```
-
-### Running the App
-
-```bash
-# Start Expo development server
 npm start
-
-# Run on specific platform
-npm run android
-npm run ios
-npm run web
 ```
 
-### Development Commands
+### Commands
 
 ```bash
-# Lint
-npm run lint
-
-# Type check
-npm run typecheck
-
-# Run tests
-npm test
-
-# Run tests in watch mode
-npm test -- --watch
-
-# Format code
-npm run format
-
-# Check formatting
-npm run format:check
+npm run lint        # ESLint
+npm run typecheck   # TypeScript
+npm test            # Jest
+npm run format      # Prettier
 ```
-
-## Testing
-
-```bash
-# Run all tests
-npm test -- --runInBand
-
-# Run tests with coverage
-npm test -- --coverage
-```
-
-Tests cover:
-- `InMemoryNotesRepository` — full CRUD + edge cases
-- All 6 use cases — happy path + validation errors
-- `createNoteSchema` — Zod validation rules
-- `parseTagsString` — tag parsing utility
-
-## Screenshots
-
-| Notes List | Create Note | Note Detail |
-| :--------: | :---------: | :---------: |
-| ![Notes List](docs/screenshots/notes-list-modern.png) | ![Create Note](docs/screenshots/create-note-modern.png) | ![Note Detail](docs/screenshots/note-detail-modern.png) |
-
-> Screenshots are placeholders. Run the app on a device or simulator to see the polished UI.
 
 ## AI Usage Disclosure
 
 AI was used for scaffolding, refactoring suggestions, and documentation drafts. Architecture decisions, debugging, testing, review, and final implementation ownership remain with the developer.
 
-See [AI_USAGE.md](./AI_USAGE.md) for details.
-
-## Roadmap
-
-See [ROADMAP.md](./ROADMAP.md) for planned features and milestones.
-
 ## License
 
 MIT
-
-## Author
-
-Built by [Your Name] — a portfolio project demonstrating clean architecture in React Native.

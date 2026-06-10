@@ -1,6 +1,14 @@
 # Roadmap
 
-## v1.2 — Modern UI Redesign (Current)
+## v1.3 — UX Correction (Current)
+
+- [x] Notes list redesigned as compact inbox (flat rows, dividers, minimal spacing)
+- [x] Note editor with borderless title/body, save in header, no form card
+- [x] Note reader with readable body, subtle metadata, secondary actions at bottom
+- [x] Warm neutral palette, muted accents, minimal shadows
+- [x] Realistic seed data (checklist, grocery list, quick notes)
+
+## v1.2 — Modern UI Redesign
 
 - [x] Expanded design tokens with accent colors and softer surfaces
 - [x] Notes list hero header with display title and subtitle
