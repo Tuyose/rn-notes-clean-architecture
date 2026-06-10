@@ -1,59 +1,59 @@
 /**
  * Design tokens for the Notes app.
  *
- * Single source of truth for all visual constants.
- * Keep tokens flat and primitive — semantic mapping lives in the theme hook.
+ * Calm productivity palette. Not a SaaS dashboard.
+ * Warm neutrals, muted accents, minimal shadow.
  */
 
 export const colors = {
-  // Neutrals — expanded for softer surfaces and muted text
+  // Neutrals — warm gray family
   white: '#FFFFFF',
   black: '#000000',
-  gray50: '#FAFBFC',
-  gray100: '#F4F5F7',
-  gray150: '#ECEEF1',
-  gray200: '#E1E4E8',
-  gray300: '#CDD2DA',
-  gray400: '#9AA2B1',
-  gray500: '#6E7A8A',
-  gray600: '#4E5A6B',
-  gray700: '#374150',
-  gray800: '#1F2A37',
-  gray900: '#111827',
+  gray50: '#FAFAF9',
+  gray100: '#F5F5F4',
+  gray150: '#EEEDEB',
+  gray200: '#E7E5E4',
+  gray300: '#D6D3D1',
+  gray400: '#A8A29E',
+  gray500: '#78716C',
+  gray600: '#57534E',
+  gray700: '#44403C',
+  gray800: '#292524',
+  gray900: '#1C1917',
 
-  // Brand — warmer indigo-violet
+  // Brand — muted indigo, not electric
   primary: '#6366F1',
   primaryLight: '#A5B4FC',
-  primarySurface: '#EEF2FF',
-  primaryDark: '#4338CA',
+  primarySurface: '#F0F0FF',
+  primaryDark: '#4F46E5',
 
-  // Accent — muted tag colors
-  accentTeal: '#0D9488',
+  // Accent — soft, desaturated tag colors
+  accentTeal: '#0F766E',
   accentTealSurface: '#F0FDFA',
-  accentAmber: '#D97706',
+  accentAmamber: '#B45309',
   accentAmberSurface: '#FFFBEB',
-  accentRose: '#E11D48',
+  accentRose: '#BE123C',
   accentRoseSurface: '#FFF1F2',
-  accentSky: '#0284C7',
+  accentSky: '#0369A1',
   accentSkySurface: '#F0F9FF',
-  accentViolet: '#7C3AED',
+  accentViolet: '#6D28D9',
   accentVioletSurface: '#F5F3FF',
-  accentEmerald: '#059669',
+  accentEmerald: '#047857',
   accentEmeraldSurface: '#ECFDF5',
 
   // Semantic
-  success: '#10B981',
-  warning: '#F59E0B',
-  error: '#EF4444',
+  success: '#16A34A',
+  warning: '#D97706',
+  error: '#DC2626',
 
-  // Surface — softer backgrounds
-  background: '#F7F8FA',
+  // Surfaces — clean, subtle layering
+  background: '#FAFAF9',
   surface: '#FFFFFF',
   surfaceElevated: '#FFFFFF',
-  surfaceMuted: '#F4F5F7',
-  border: '#E8EAEE',
-  borderLight: '#F0F1F4',
-  divider: '#ECEEF1',
+  surfaceMuted: '#F5F5F4',
+  border: '#E7E5E4',
+  borderLight: '#F0EFED',
+  divider: '#EEEDEB',
 } as const;
 
 export const spacing = {
@@ -64,7 +64,6 @@ export const spacing = {
   lg: 24,
   xl: 32,
   xxl: 48,
-  xxxl: 64,
 } as const;
 
 export const typography = {
@@ -76,8 +75,7 @@ export const typography = {
     lg: 18,
     xl: 20,
     xxl: 24,
-    xxxl: 30,
-    display: 34,
+    xxxl: 28,
   },
   weights: {
     regular: '400' as const,
@@ -87,49 +85,42 @@ export const typography = {
   },
   lineHeights: {
     tight: 1.2,
-    snug: 1.35,
+    snug: 1.3,
     normal: 1.5,
-    relaxed: 1.65,
+    relaxed: 1.6,
   },
 } as const;
 
 export const radius = {
   xs: 4,
   sm: 6,
-  md: 10,
-  lg: 14,
-  xl: 18,
-  xxl: 24,
+  md: 8,
+  lg: 12,
+  xl: 16,
+  xxl: 20,
   full: 9999,
 } as const;
 
 export const shadows = {
+  none: {
+    shadowColor: 'transparent',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
+  },
   xs: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
+    shadowOpacity: 0.03,
     shadowRadius: 1,
     elevation: 1,
   },
   sm: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  md: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  lg: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    elevation: 5,
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
 } as const;
