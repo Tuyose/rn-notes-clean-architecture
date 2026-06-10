@@ -2,15 +2,7 @@ import React from 'react';
 import { Text as RNText, TextProps, StyleSheet } from 'react-native';
 import { colors, typography } from '../theme';
 
-type Variant =
-  | 'display'
-  | 'h1'
-  | 'h2'
-  | 'h3'
-  | 'body'
-  | 'bodyMuted'
-  | 'caption'
-  | 'label';
+type Variant = 'h1' | 'h2' | 'h3' | 'body' | 'bodyMuted' | 'caption' | 'label';
 
 interface AppTextProps extends TextProps {
   variant?: Variant;
@@ -20,12 +12,6 @@ interface AppTextProps extends TextProps {
 }
 
 const variantStyles: Record<Variant, object> = {
-  display: {
-    fontSize: typography.sizes.display,
-    fontWeight: typography.weights.bold,
-    lineHeight: typography.sizes.display * typography.lineHeights.tight,
-    letterSpacing: -0.5,
-  },
   h1: {
     fontSize: typography.sizes.xxxl,
     fontWeight: typography.weights.bold,
@@ -62,8 +48,7 @@ const variantStyles: Record<Variant, object> = {
     fontSize: typography.sizes.xs,
     fontWeight: typography.weights.semibold,
     lineHeight: typography.sizes.xs * typography.lineHeights.normal,
-    letterSpacing: 0.4,
-    textTransform: 'uppercase',
+    letterSpacing: 0.3,
   },
 };
 

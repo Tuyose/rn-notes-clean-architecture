@@ -5,18 +5,12 @@ import { colors, spacing } from '../theme';
 
 interface AppScreenProps {
   children: React.ReactNode;
-  /** Override the default background color. */
   backgroundColor?: string;
-  /** Remove the default horizontal padding. */
   noHorizontalPadding?: boolean;
-  /** Remove the default vertical padding. */
   noVerticalPadding?: boolean;
   style?: ViewStyle;
 }
 
-/**
- * Standard screen wrapper that respects safe area insets on all edges.
- */
 export function AppScreen({
   children,
   backgroundColor = colors.background,
@@ -45,9 +39,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   horizontalPadding: {
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.md,
   },
   verticalPadding: {
-    paddingTop: spacing.md,
+    paddingTop: spacing.sm,
   },
 });

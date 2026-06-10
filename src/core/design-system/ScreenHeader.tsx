@@ -4,29 +4,25 @@ import { AppText } from './AppText';
 import { colors, spacing, typography } from '../theme';
 
 interface ScreenHeaderProps {
-  title: string;
+  title?: string;
   subtitle?: string;
-  /** Show a back button on the left. */
   onBack?: () => void;
-  /** Right-side action element (button, icon, etc). */
   rightAction?: React.ReactNode;
-  /** Use the larger display style for the title. */
-  large?: boolean;
 }
 
 /**
- * Consistent screen header used across all screens.
+ * Minimal screen header. Title on left, optional right action.
+ * Back chevron is subtle and non-dominant.
  */
 export function ScreenHeader({
   title,
   subtitle,
   onBack,
   rightAction,
-  large = false,
 }: ScreenHeaderProps) {
   return (
     <View style={styles.container}>
-      <View style={styles.topRow}>
+      <View style={styles.row}>
         {onBack && (
           <Pressable
             onPress={onBack}
@@ -37,15 +33,21 @@ export function ScreenHeader({
             <AppText style={styles.backChevron}>‹</AppText>
           </Pressable>
         )}
-        {rightAction && <View style={styles.rightAction}>{rightAction}</View>}
-      </View>
-      <View style={styles.titleBlock}>
-        <AppText variant={large ? 'display' : 'h1'}>{title}</AppText>
-        {subtitle && (
-          <AppText variant="body" color={colors.gray400} style={styles.subtitle}>
-            {subtitle}
-          </AppText>
+        {title ? (
+          <View style={styles.titleBlock}>
+            <AppText variant="h3" numberOfLines={1}>
+              {title}
+            </AppText>
+            {subtitle && (
+              <AppText variant="caption" color={colors.gray400} style={styles.subtitle}>
+                {subtitle}
+              </AppText>
+            )}
+          </View>
+        ) : (
+          <View style={styles.spacer} />
         )}
+        {rightAction && <View style={styles.rightAction}>{rightAction}</View>}
       </View>
     </View>
   );
@@ -53,27 +55,31 @@ export function ScreenHeader({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
-  topRow: {
+  row: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.sm,
+    justifyContent: 'space-between',
   },
   backButton: {
     padding: spacing.xs,
-    marginLeft: -spacing.xs,
+    marginRight: spacing.sm,
   },
   backChevron: {
-    fontSize: typography.sizes.xxxl,
-    color: colors.primary,
+    fontSize: typography.sizes.xxl,
+    color: colors.gray500,
     fontWeight: '300',
-    lineHeight: typography.sizes.xxxl,
+    lineHeight: typography.sizes.xxl,
+  },
+  titleBlock: {
+    flex: 1,
+  },
+  subtitle: {
+    marginTop: spacing.xxs,
+  },
+  spacer: {
+    flex: 1,
   },
   rightAction: {},
-  titleBlock: {},
-  subtitle: {
-    marginTop: spacing.xs,
-  },
 });

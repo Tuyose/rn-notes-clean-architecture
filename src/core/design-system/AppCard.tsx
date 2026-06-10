@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, ViewProps, StyleSheet } from 'react-native';
-import { colors, radius, spacing, shadows } from '../theme';
+import { colors, radius, spacing } from '../theme';
 
-type Variant = 'default' | 'flat' | 'elevated' | 'tinted';
+type Variant = 'default' | 'flat' | 'tinted';
 
 interface AppCardProps extends ViewProps {
   children: React.ReactNode;
@@ -31,20 +31,11 @@ const variantStyles: Record<Variant, object> = {
   default: {
     borderWidth: 1,
     borderColor: colors.border,
-    ...shadows.sm,
   },
   flat: {
-    borderWidth: 1,
-    borderColor: colors.borderLight,
     backgroundColor: colors.surfaceMuted,
   },
-  elevated: {
-    borderWidth: 0,
-    ...shadows.md,
-  },
   tinted: {
-    borderWidth: 1,
-    borderColor: colors.borderLight,
     backgroundColor: colors.surfaceMuted,
   },
 };

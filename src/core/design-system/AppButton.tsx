@@ -26,9 +26,9 @@ const variantStyles: Record<
   { base: ViewStyle; text: string; pressed: ViewStyle }
 > = {
   primary: {
-    base: { backgroundColor: colors.primary },
+    base: { backgroundColor: colors.gray900 },
     text: colors.white,
-    pressed: { backgroundColor: colors.primaryDark },
+    pressed: { backgroundColor: colors.gray800 },
   },
   secondary: {
     base: {
@@ -41,18 +41,18 @@ const variantStyles: Record<
   },
   ghost: {
     base: { backgroundColor: 'transparent' },
-    text: colors.primary,
-    pressed: { backgroundColor: colors.primarySurface },
+    text: colors.gray600,
+    pressed: { backgroundColor: colors.gray100 },
   },
   danger: {
-    base: { backgroundColor: colors.error },
-    text: colors.white,
-    pressed: { backgroundColor: '#DC2626' },
+    base: { backgroundColor: 'transparent' },
+    text: colors.error,
+    pressed: { backgroundColor: colors.accentRoseSurface },
   },
   soft: {
-    base: { backgroundColor: colors.primarySurface },
-    text: colors.primary,
-    pressed: { backgroundColor: '#E0E7FF' },
+    base: { backgroundColor: colors.gray100 },
+    text: colors.gray700,
+    pressed: { backgroundColor: colors.gray200 },
   },
 };
 
@@ -118,7 +118,11 @@ export function AppButton({
         <AppText
           variant="label"
           color={vStyle.text}
-          style={{ fontSize: sStyle.fontSize, textTransform: 'none', letterSpacing: 0 }}
+          style={{
+            fontSize: sStyle.fontSize,
+            textTransform: 'none',
+            letterSpacing: 0,
+          }}
         >
           {title}
         </AppText>
@@ -135,7 +139,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   disabled: {
-    opacity: 0.5,
+    opacity: 0.4,
   },
   fullWidth: {
     width: '100%',

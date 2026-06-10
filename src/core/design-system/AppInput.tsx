@@ -6,8 +6,7 @@ import { colors, radius, spacing, typography } from '../theme';
 interface AppInputProps extends TextInputProps {
   label?: string;
   error?: string;
-  /** Visual style variant. */
-  variant?: 'default' | 'search';
+  variant?: 'default' | 'search' | 'borderless';
 }
 
 export const AppInput = forwardRef<TextInput, AppInputProps>(
@@ -48,6 +47,11 @@ const variantStyles = StyleSheet.create({
     backgroundColor: colors.surfaceMuted,
     borderWidth: 0,
     borderRadius: radius.lg,
+  },
+  borderless: {
+    borderWidth: 0,
+    backgroundColor: 'transparent',
+    paddingHorizontal: 0,
   },
 });
 
