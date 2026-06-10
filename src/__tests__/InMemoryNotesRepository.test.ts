@@ -21,6 +21,23 @@ describe('InMemoryNotesRepository', () => {
       const notes = await repository.getNotes();
       expect(notes).toHaveLength(2);
     });
+
+    it('returns notes sorted by updatedAt descending', async () => {
+      const first = await repository.createNote({
+        title: 'First',
+        body: 'Body',
+      });
+      // Small delay to ensure different timestamps
+      await new Promise((r) => setTimeout(r, 10));
+      const second = await repository.createNote({
+        title: 'Second',
+        body: 'Body',
+      });
+
+      const notes = await repository.getNotes();
+      expect(notes[0].id).toBe(second.id);
+      expect(notes[1].id).toBe(first.id);
+    });
   });
 
   describe('getNoteById', () => {
@@ -63,6 +80,20 @@ describe('InMemoryNotesRepository', () => {
       });
       expect(note.tags).toEqual([]);
     });
+
+    it('inserts new notes at the top', async () => {
+      await repository.createNote({ title: 'First', body: 'Body' });
+      await new Promise((r) => setTimeout(r, 10));
+      await repository.createNote({ title: 'Second', body: 'Body' });
+      await new Promise((r) => setTimeout(r, 10));
+      const third = await repository.createNote({
+        title: 'Third',
+        body: 'Body',
+      });
+
+      const notes = await repository.getNotes();
+      expect(notes[0].id).toBe(third.id);
+    });
   });
 
   describe('updateNote', () => {
@@ -78,10 +109,34 @@ describe('InMemoryNotesRepository', () => {
 
       expect(updated.title).toBe('Updated');
       expect(updated.body).toBe('Original body');
-      // updatedAt should be >= createdAt (may be equal if same millisecond)
       expect(new Date(updated.updatedAt).getTime()).toBeGreaterThanOrEqual(
         new Date(note.createdAt).getTime(),
       );
+    });
+
+    it('moves updated note to the top', async () => {
+      const first = await repository.createNote({
+        title: 'First',
+        body: 'Body',
+      });
+      await new Promise((r) => setTimeout(r, 10));
+      const second = await repository.createNote({
+        title: 'Second',
+        body: 'Body',
+      });
+
+      // First is at index 1
+      let notes = await repository.getNotes();
+      expect(notes[0].id).toBe(second.id);
+      expect(notes[1].id).toBe(first.id);
+
+      // Update first note — should move to top
+      await new Promise((r) => setTimeout(r, 10));
+      await repository.updateNote(first.id, { title: 'Updated First' });
+
+      notes = await repository.getNotes();
+      expect(notes[0].id).toBe(first.id);
+      expect(notes[0].title).toBe('Updated First');
     });
 
     it('throws for non-existent note', async () => {

@@ -30,6 +30,18 @@ describe('Use Cases', () => {
 
       expect(notes).toEqual([]);
     });
+
+    it('returns notes sorted by updatedAt descending', async () => {
+      await repository.createNote({ title: 'First', body: 'Body' });
+      await new Promise((r) => setTimeout(r, 10));
+      await repository.createNote({ title: 'Second', body: 'Body' });
+
+      const useCase = new GetNotesUseCase(repository);
+      const notes = await useCase.execute();
+
+      expect(notes[0].title).toBe('Second');
+      expect(notes[1].title).toBe('First');
+    });
   });
 
   describe('GetNoteByIdUseCase', () => {
@@ -102,6 +114,22 @@ describe('Use Cases', () => {
 
       expect(updated.title).toBe('Updated');
       expect(updated.body).toBe('Body');
+    });
+
+    it('updated note moves to top of list', async () => {
+      const first = await repository.createNote({
+        title: 'First',
+        body: 'Body',
+      });
+      await new Promise((r) => setTimeout(r, 10));
+      await repository.createNote({ title: 'Second', body: 'Body' });
+
+      const useCase = new UpdateNoteUseCase(repository);
+      await new Promise((r) => setTimeout(r, 10));
+      await useCase.execute(first.id, { title: 'Updated First' });
+
+      const notes = await repository.getNotes();
+      expect(notes[0].title).toBe('Updated First');
     });
 
     it('throws for non-existent note', async () => {

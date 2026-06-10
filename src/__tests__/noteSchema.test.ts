@@ -1,11 +1,12 @@
 import {
-  createNoteSchema,
+  noteFormSchema,
   parseTagsString,
+  tagsToString,
 } from '../features/notes/validation/noteSchema';
 
-describe('createNoteSchema', () => {
+describe('noteFormSchema', () => {
   it('validates a valid note', () => {
-    const result = createNoteSchema.safeParse({
+    const result = noteFormSchema.safeParse({
       title: 'Test Note',
       body: 'Test body content',
       tags: 'test, demo',
@@ -19,7 +20,7 @@ describe('createNoteSchema', () => {
   });
 
   it('fails when title is empty', () => {
-    const result = createNoteSchema.safeParse({
+    const result = noteFormSchema.safeParse({
       title: '',
       body: 'Test body',
     });
@@ -31,7 +32,7 @@ describe('createNoteSchema', () => {
   });
 
   it('fails when title exceeds 100 characters', () => {
-    const result = createNoteSchema.safeParse({
+    const result = noteFormSchema.safeParse({
       title: 'a'.repeat(101),
       body: 'Test body',
     });
@@ -42,20 +43,25 @@ describe('createNoteSchema', () => {
     }
   });
 
-  it('fails when body is empty', () => {
-    const result = createNoteSchema.safeParse({
+  it('accepts note without body (draft)', () => {
+    const result = noteFormSchema.safeParse({
+      title: 'Draft note',
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts note with empty body', () => {
+    const result = noteFormSchema.safeParse({
       title: 'Test',
       body: '',
     });
 
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe('Body is required');
-    }
+    expect(result.success).toBe(true);
   });
 
   it('fails when body exceeds 5000 characters', () => {
-    const result = createNoteSchema.safeParse({
+    const result = noteFormSchema.safeParse({
       title: 'Test',
       body: 'a'.repeat(5001),
     });
@@ -67,7 +73,7 @@ describe('createNoteSchema', () => {
   });
 
   it('accepts note without tags', () => {
-    const result = createNoteSchema.safeParse({
+    const result = noteFormSchema.safeParse({
       title: 'Test',
       body: 'Body',
     });
@@ -103,5 +109,19 @@ describe('parseTagsString', () => {
 
   it('returns empty array for whitespace-only string', () => {
     expect(parseTagsString('   ')).toEqual([]);
+  });
+});
+
+describe('tagsToString', () => {
+  it('converts tags array to comma-separated string', () => {
+    expect(tagsToString(['react', 'typescript'])).toBe('react, typescript');
+  });
+
+  it('returns empty string for empty array', () => {
+    expect(tagsToString([])).toBe('');
+  });
+
+  it('handles single tag', () => {
+    expect(tagsToString(['work'])).toBe('work');
   });
 });
