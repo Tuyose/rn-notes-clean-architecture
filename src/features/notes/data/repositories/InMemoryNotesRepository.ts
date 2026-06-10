@@ -5,18 +5,16 @@ import type { NotesRepository } from '../../domain/repositories';
 /**
  * In-memory implementation of NotesRepository.
  *
- * Stores notes in a plain array. Perfect for the first sprint:
- * no persistence, no backend, just enough to wire up the full
- * vertical slice and validate the architecture.
- *
- * When you add AsyncStorage/SQLite later, create a new class that
- * implements NotesRepository — the rest of the app won't change.
+ * Notes are stored in updatedAt descending order:
+ * most recently updated notes appear first.
  */
 export class InMemoryNotesRepository implements NotesRepository {
   private notes: Note[] = [];
 
   async getNotes(): Promise<Note[]> {
-    return [...this.notes];
+    return [...this.notes].sort(
+      (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+    );
   }
 
   async getNoteById(id: string): Promise<Note | null> {
@@ -34,7 +32,7 @@ export class InMemoryNotesRepository implements NotesRepository {
       createdAt: now,
       updatedAt: now,
     };
-    this.notes.push(note);
+    this.notes.unshift(note);
     return note;
   }
 
@@ -49,7 +47,9 @@ export class InMemoryNotesRepository implements NotesRepository {
       ...input,
       updatedAt: new Date().toISOString(),
     };
-    this.notes[index] = updated;
+    // Remove from old position, insert at top
+    this.notes.splice(index, 1);
+    this.notes.unshift(updated);
     return updated;
   }
 
@@ -73,17 +73,10 @@ export class InMemoryNotesRepository implements NotesRepository {
     this.notes.splice(index, 1);
   }
 
-  /**
-   * Seed the repository with test data.
-   * Useful for development and testing.
-   */
   seed(notes: Note[]): void {
     this.notes = [...notes];
   }
 
-  /**
-   * Clear all notes. Useful for test teardown.
-   */
   clear(): void {
     this.notes = [];
   }

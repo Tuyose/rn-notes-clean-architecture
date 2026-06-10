@@ -1,27 +1,23 @@
 import { create } from 'zustand';
-import type { Note, CreateNoteInput } from '../../domain/entities';
+import type { Note, CreateNoteInput, UpdateNoteInput } from '../../domain/entities';
 import { InMemoryNotesRepository } from '../../data/repositories';
 import { createDemoNotes } from '../../data/seed';
 import {
   GetNotesUseCase,
   GetNoteByIdUseCase,
   CreateNoteUseCase,
+  UpdateNoteUseCase,
   ArchiveNoteUseCase,
   DeleteNoteUseCase,
 } from '../../domain/use-cases';
 
-/**
- * Singleton repository instance.
- * Replace with a factory when adding persistence.
- */
 const repository = new InMemoryNotesRepository();
-
-// Seed demo data on first load so the app never starts completely empty.
 repository.seed(createDemoNotes());
 
 const getNotesUseCase = new GetNotesUseCase(repository);
 const getNoteByIdUseCase = new GetNoteByIdUseCase(repository);
 const createNoteUseCase = new CreateNoteUseCase(repository);
+const updateNoteUseCase = new UpdateNoteUseCase(repository);
 const archiveNoteUseCase = new ArchiveNoteUseCase(repository);
 const deleteNoteUseCase = new DeleteNoteUseCase(repository);
 
@@ -31,10 +27,10 @@ interface NotesState {
   loading: boolean;
   error: string | null;
 
-  // Actions
   loadNotes: () => Promise<void>;
   loadNoteById: (id: string) => Promise<void>;
-  createNote: (input: CreateNoteInput) => Promise<void>;
+  createNote: (input: CreateNoteInput) => Promise<Note>;
+  updateNote: (id: string, input: UpdateNoteInput) => Promise<Note>;
   archiveNote: (id: string) => Promise<void>;
   deleteNote: (id: string) => Promise<void>;
   clearSelected: () => void;
@@ -69,11 +65,26 @@ export const useNotesStore = create<NotesState>((set) => ({
   createNote: async (input: CreateNoteInput) => {
     set({ loading: true, error: null });
     try {
-      await createNoteUseCase.execute(input);
+      const note = await createNoteUseCase.execute(input);
       const notes = await getNotesUseCase.execute();
       set({ notes, loading: false });
+      return note;
     } catch (e) {
       set({ error: (e as Error).message, loading: false });
+      throw e;
+    }
+  },
+
+  updateNote: async (id: string, input: UpdateNoteInput) => {
+    set({ loading: true, error: null });
+    try {
+      const note = await updateNoteUseCase.execute(id, input);
+      const notes = await getNotesUseCase.execute();
+      set({ notes, selectedNote: note, loading: false });
+      return note;
+    } catch (e) {
+      set({ error: (e as Error).message, loading: false });
+      throw e;
     }
   },
 
