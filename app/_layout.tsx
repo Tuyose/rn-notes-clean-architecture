@@ -11,7 +11,7 @@ export default function RootLayout() {
           headerShown: false,
           contentStyle: { backgroundColor: colors.background },
           animation: 'slide_from_right',
-          animationDuration: 200,
+          animationDuration: 220,
           gestureEnabled: true,
           gestureDirection: 'horizontal',
         }}

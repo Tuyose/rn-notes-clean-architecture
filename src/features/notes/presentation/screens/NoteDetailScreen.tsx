@@ -5,12 +5,11 @@ import {
   AppText,
   AppButton,
   AppBadge,
-  AppCard,
   AppEmptyState,
   AppScreen,
   ScreenHeader,
 } from '../../../../core/design-system';
-import { colors, spacing } from '../../../../core/theme';
+import { colors, spacing, radius } from '../../../../core/theme';
 import { useNotesStore } from '../store';
 
 export function NoteDetailScreen() {
@@ -63,7 +62,7 @@ export function NoteDetailScreen() {
     return (
       <AppScreen>
         <View style={styles.center}>
-          <AppText variant="body" color={colors.gray500}>
+          <AppText variant="body" color={colors.gray400}>
             Loading…
           </AppText>
         </View>
@@ -75,8 +74,8 @@ export function NoteDetailScreen() {
     return (
       <AppScreen>
         <AppEmptyState
-          icon="⚠️"
-          title="Error"
+          icon="⚠"
+          title="Something went wrong"
           description={error}
           action={<AppButton title="Go Back" onPress={() => router.back()} />}
         />
@@ -88,8 +87,9 @@ export function NoteDetailScreen() {
     return (
       <AppScreen>
         <AppEmptyState
-          icon="🔍"
+          icon="?"
           title="Note not found"
+          description="This note may have been deleted."
           action={<AppButton title="Go Back" onPress={() => router.back()} />}
         />
       </AppScreen>
@@ -111,50 +111,68 @@ export function NoteDetailScreen() {
 
   return (
     <AppScreen>
-      <ScreenHeader title={selectedNote.title} onBack={() => router.back()} />
+      <ScreenHeader
+        title=""
+        onBack={() => router.back()}
+        rightAction={
+          <AppButton
+            title={selectedNote.isArchived ? 'Unarchive' : 'Archive'}
+            variant="ghost"
+            size="xs"
+            onPress={handleArchive}
+          />
+        }
+      />
 
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* Status + Tags */}
-        <View style={styles.badges}>
-          {selectedNote.isArchived && (
-            <AppBadge label="Archived" color={colors.gray500} />
-          )}
-          {selectedNote.tags.map((tag) => (
-            <AppBadge key={tag} label={tag} />
-          ))}
-        </View>
+        {/* Title */}
+        <AppText variant="h1" style={styles.title}>
+          {selectedNote.title}
+        </AppText>
+
+        {/* Tags */}
+        {(selectedNote.isArchived || selectedNote.tags.length > 0) && (
+          <View style={styles.badges}>
+            {selectedNote.isArchived && (
+              <AppBadge label="Archived" color={colors.gray500} />
+            )}
+            {selectedNote.tags.map((tag) => (
+              <AppBadge key={tag} label={tag} />
+            ))}
+          </View>
+        )}
 
         {/* Body */}
-        <AppCard variant="default" style={styles.bodyCard}>
+        <View style={styles.bodySection}>
           <AppText variant="body" style={styles.body}>
             {selectedNote.body}
           </AppText>
-        </AppCard>
+        </View>
 
         {/* Metadata */}
-        <AppCard variant="flat" style={styles.metaCard}>
+        <View style={styles.metaSection}>
           <View style={styles.metaRow}>
-            <AppText variant="label" color={colors.gray500}>
+            <AppText variant="caption" color={colors.gray400}>
               Created
             </AppText>
-            <AppText variant="caption" color={colors.gray600}>
+            <AppText variant="caption" color={colors.gray500}>
               {createdDate}
             </AppText>
           </View>
           <View style={styles.metaDivider} />
           <View style={styles.metaRow}>
-            <AppText variant="label" color={colors.gray500}>
+            <AppText variant="caption" color={colors.gray400}>
               Updated
             </AppText>
-            <AppText variant="caption" color={colors.gray600}>
+            <AppText variant="caption" color={colors.gray500}>
               {updatedDate}
             </AppText>
           </View>
-        </AppCard>
+        </View>
 
         {/* Actions */}
         <View style={styles.actions}>
@@ -188,21 +206,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  title: {
+    marginBottom: spacing.sm,
+  },
   badges: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.xs,
-    marginBottom: spacing.md,
+    marginBottom: spacing.lg,
   },
-  bodyCard: {
-    marginBottom: spacing.md,
+  bodySection: {
+    marginBottom: spacing.lg,
   },
   body: {
-    lineHeight: 24,
+    lineHeight: 28,
+    color: colors.gray700,
   },
-  metaCard: {
-    marginBottom: spacing.lg,
+  metaSection: {
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: radius.md,
+    padding: spacing.md,
     gap: spacing.sm,
+    marginBottom: spacing.lg,
   },
   metaRow: {
     flexDirection: 'row',
@@ -211,7 +236,7 @@ const styles = StyleSheet.create({
   },
   metaDivider: {
     height: 1,
-    backgroundColor: colors.border,
+    backgroundColor: colors.divider,
   },
   actions: {
     flexDirection: 'row',

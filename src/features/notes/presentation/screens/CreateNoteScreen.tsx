@@ -7,11 +7,10 @@ import {
   AppText,
   AppButton,
   AppInput,
-  AppCard,
   AppScreen,
   ScreenHeader,
 } from '../../../../core/design-system';
-import { colors, spacing } from '../../../../core/theme';
+import { colors, spacing, radius } from '../../../../core/theme';
 import { useNotesStore } from '../store';
 import { createNoteSchema, parseTagsString } from '../../validation';
 import type { CreateNoteFormData } from '../../validation';
@@ -48,7 +47,20 @@ export function CreateNoteScreen() {
 
   return (
     <AppScreen>
-      <ScreenHeader title="New Note" onBack={() => router.back()} />
+      <ScreenHeader
+        title="New Note"
+        onBack={() => router.back()}
+        rightAction={
+          <AppButton
+            title="Save"
+            variant="soft"
+            size="sm"
+            onPress={handleSubmit(onSubmit)}
+            loading={loading}
+            disabled={loading}
+          />
+        }
+      />
 
       <ScrollView
         style={styles.scroll}
@@ -56,45 +68,47 @@ export function CreateNoteScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <AppText variant="body" color={colors.gray500} style={styles.intro}>
-          Write something worth remembering.
-        </AppText>
-
-        <AppCard variant="default" style={styles.formCard}>
-          <Controller
-            control={control}
-            name="title"
-            render={({ field: { onChange, onBlur, value } }) => (
+        {/* Title field — large, clean, feels like a note title */}
+        <Controller
+          control={control}
+          name="title"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <View>
               <AppInput
-                label="Title"
                 placeholder="Note title"
                 value={value}
                 onChangeText={onChange}
                 onBlur={onBlur}
                 error={errors.title?.message}
                 autoFocus
+                style={styles.titleInput}
               />
-            )}
-          />
+            </View>
+          )}
+        />
 
-          <Controller
-            control={control}
-            name="body"
-            render={({ field: { onChange, onBlur, value } }) => (
+        {/* Body field — writing surface */}
+        <Controller
+          control={control}
+          name="body"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <View>
               <AppInput
-                label="Body"
-                placeholder="Write your note…"
+                placeholder="Start writing…"
                 value={value}
                 onChangeText={onChange}
                 onBlur={onBlur}
                 error={errors.body?.message}
                 multiline
-                numberOfLines={6}
+                numberOfLines={8}
                 style={styles.bodyInput}
               />
-            )}
-          />
+            </View>
+          )}
+        />
 
+        {/* Tags field — secondary */}
+        <View style={styles.tagsSection}>
           <Controller
             control={control}
             name="tags"
@@ -109,14 +123,23 @@ export function CreateNoteScreen() {
                   error={errors.tags?.message}
                 />
                 <AppText variant="caption" color={colors.gray400} style={styles.helper}>
-                  Separate tags with commas. Leave empty for no tags.
+                  Separate with commas. Leave empty for no tags.
                 </AppText>
               </View>
             )}
           />
-        </AppCard>
+        </View>
 
-        <View style={styles.actions}>
+        {/* Metadata hint */}
+        <View style={styles.metaHint}>
+          <View style={styles.metaDot} />
+          <AppText variant="caption" color={colors.gray400}>
+            Local only · Saved to device
+          </AppText>
+        </View>
+
+        {/* Bottom save action */}
+        <View style={styles.bottomActions}>
           <AppButton
             title="Cancel"
             variant="secondary"
@@ -143,21 +166,45 @@ const styles = StyleSheet.create({
   content: {
     paddingBottom: spacing.xxl,
   },
-  intro: {
-    marginBottom: spacing.md,
-  },
-  formCard: {
-    gap: spacing.md,
-    marginBottom: spacing.lg,
+  titleInput: {
+    fontSize: 22,
+    fontWeight: '600',
+    borderWidth: 0,
+    paddingHorizontal: 0,
+    paddingVertical: spacing.sm,
+    backgroundColor: 'transparent',
   },
   bodyInput: {
-    minHeight: 140,
+    minHeight: 180,
     textAlignVertical: 'top',
+    borderWidth: 0,
+    paddingHorizontal: 0,
+    backgroundColor: 'transparent',
+    lineHeight: 26,
+  },
+  tagsSection: {
+    marginTop: spacing.md,
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.divider,
   },
   helper: {
-    marginTop: spacing.xs,
+    marginTop: spacing.xxs,
   },
-  actions: {
+  metaHint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.lg,
+    marginBottom: spacing.md,
+  },
+  metaDot: {
+    width: 6,
+    height: 6,
+    borderRadius: radius.full,
+    backgroundColor: colors.success,
+  },
+  bottomActions: {
     flexDirection: 'row',
     gap: spacing.sm,
   },
