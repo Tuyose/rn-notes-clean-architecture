@@ -7,6 +7,7 @@ import {
   AppBadge,
   AppCard,
   AppEmptyState,
+  AppScreen,
 } from '../../../../core/design-system';
 import { colors, spacing } from '../../../../core/theme';
 import { useNotesStore } from '../store';
@@ -53,32 +54,38 @@ export function NoteDetailScreen() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <AppText variant="body" color={colors.gray500}>
-          Loading...
-        </AppText>
-      </View>
+      <AppScreen>
+        <View style={styles.center}>
+          <AppText variant="body" color={colors.gray500}>
+            Loading...
+          </AppText>
+        </View>
+      </AppScreen>
     );
   }
 
   if (error) {
     return (
-      <AppEmptyState
-        icon="⚠️"
-        title="Error"
-        description={error}
-        action={<AppButton title="Go Back" onPress={() => router.back()} />}
-      />
+      <AppScreen>
+        <AppEmptyState
+          icon="⚠️"
+          title="Error"
+          description={error}
+          action={<AppButton title="Go Back" onPress={() => router.back()} />}
+        />
+      </AppScreen>
     );
   }
 
   if (!selectedNote) {
     return (
-      <AppEmptyState
-        icon="🔍"
-        title="Note not found"
-        action={<AppButton title="Go Back" onPress={() => router.back()} />}
-      />
+      <AppScreen>
+        <AppEmptyState
+          icon="🔍"
+          title="Note not found"
+          action={<AppButton title="Go Back" onPress={() => router.back()} />}
+        />
+      </AppScreen>
     );
   }
 
@@ -86,67 +93,68 @@ export function NoteDetailScreen() {
   const updatedDate = new Date(selectedNote.updatedAt).toLocaleDateString();
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
-        <AppButton
-          title="← Back"
-          variant="ghost"
-          size="sm"
-          onPress={() => router.back()}
-        />
-      </View>
-
-      <AppText variant="h1" style={styles.title}>
-        {selectedNote.title}
-      </AppText>
-
-      {selectedNote.isArchived && <AppBadge label="Archived" color={colors.gray500} />}
-
-      {selectedNote.tags.length > 0 && (
-        <View style={styles.tags}>
-          {selectedNote.tags.map((tag) => (
-            <AppBadge key={tag} label={tag} />
-          ))}
+    <AppScreen noVerticalPadding>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+        <View style={styles.headerRow}>
+          <AppButton
+            title="← Back"
+            variant="ghost"
+            size="sm"
+            onPress={() => router.back()}
+          />
         </View>
-      )}
 
-      <AppCard style={styles.bodyCard}>
-        <AppText variant="body" style={styles.body}>
-          {selectedNote.body}
+        <AppText variant="h1" style={styles.title}>
+          {selectedNote.title}
         </AppText>
-      </AppCard>
 
-      <View style={styles.meta}>
-        <AppText variant="caption" color={colors.gray500}>
-          Created: {createdDate}
-        </AppText>
-        <AppText variant="caption" color={colors.gray500}>
-          Updated: {updatedDate}
-        </AppText>
-      </View>
+        {selectedNote.isArchived && <AppBadge label="Archived" color={colors.gray500} />}
 
-      <View style={styles.actions}>
-        <AppButton
-          title={selectedNote.isArchived ? 'Unarchive' : 'Archive'}
-          variant="secondary"
-          onPress={handleArchive}
-          style={styles.actionButton}
-        />
-        <AppButton
-          title="Delete"
-          variant="danger"
-          onPress={handleDelete}
-          style={styles.actionButton}
-        />
-      </View>
-    </ScrollView>
+        {selectedNote.tags.length > 0 && (
+          <View style={styles.tags}>
+            {selectedNote.tags.map((tag) => (
+              <AppBadge key={tag} label={tag} />
+            ))}
+          </View>
+        )}
+
+        <AppCard style={styles.bodyCard}>
+          <AppText variant="body" style={styles.body}>
+            {selectedNote.body}
+          </AppText>
+        </AppCard>
+
+        <View style={styles.meta}>
+          <AppText variant="caption" color={colors.gray500}>
+            Created: {createdDate}
+          </AppText>
+          <AppText variant="caption" color={colors.gray500}>
+            Updated: {updatedDate}
+          </AppText>
+        </View>
+
+        <View style={styles.actions}>
+          <AppButton
+            title={selectedNote.isArchived ? 'Unarchive' : 'Archive'}
+            variant="secondary"
+            onPress={handleArchive}
+            style={styles.actionButton}
+          />
+          <AppButton
+            title="Delete"
+            variant="danger"
+            onPress={handleDelete}
+            style={styles.actionButton}
+          />
+        </View>
+      </ScrollView>
+    </AppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  scroll: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   content: {
     padding: spacing.md,
@@ -157,8 +165,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  header: {
-    flexDirection: 'row',
+  headerRow: {
     marginBottom: spacing.md,
   },
   title: {

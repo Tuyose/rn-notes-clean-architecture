@@ -6,6 +6,7 @@ import {
   AppButton,
   AppInput,
   AppEmptyState,
+  AppScreen,
 } from '../../../../core/design-system';
 import { colors, spacing } from '../../../../core/theme';
 import { NoteCard } from '../components';
@@ -34,7 +35,7 @@ export function NotesListScreen() {
   const activeNotes = notes.filter((n) => !n.isArchived);
 
   return (
-    <View style={styles.container}>
+    <AppScreen>
       <View style={styles.header}>
         <AppText variant="h1">Notes</AppText>
         <AppButton title="+ New" size="sm" onPress={handleCreate} />
@@ -72,16 +73,11 @@ export function NotesListScreen() {
           ) : null
         }
       />
-    </View>
+    </AppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-    padding: spacing.md,
-  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',

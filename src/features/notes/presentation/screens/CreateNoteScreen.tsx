@@ -3,8 +3,8 @@ import { StyleSheet, View, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AppText, AppButton, AppInput } from '../../../../core/design-system';
-import { colors, spacing } from '../../../../core/theme';
+import { AppText, AppButton, AppInput, AppScreen } from '../../../../core/design-system';
+import { spacing } from '../../../../core/theme';
 import { useNotesStore } from '../store';
 import { createNoteSchema, parseTagsString } from '../../validation';
 import type { CreateNoteFormData } from '../../validation';
@@ -39,90 +39,103 @@ export function CreateNoteScreen() {
   );
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-    >
-      <AppText variant="h2" style={styles.heading}>
-        New Note
-      </AppText>
-
-      <Controller
-        control={control}
-        name="title"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <AppInput
-            label="Title"
-            placeholder="Note title"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            error={errors.title?.message}
-            autoFocus
+    <AppScreen noVerticalPadding>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.headerRow}>
+          <AppButton
+            title="← Back"
+            variant="ghost"
+            size="sm"
+            onPress={() => router.back()}
           />
-        )}
-      />
+        </View>
 
-      <Controller
-        control={control}
-        name="body"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <AppInput
-            label="Body"
-            placeholder="Write your note..."
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            error={errors.body?.message}
-            multiline
-            numberOfLines={6}
-            style={styles.bodyInput}
-          />
-        )}
-      />
+        <AppText variant="h2" style={styles.heading}>
+          New Note
+        </AppText>
 
-      <Controller
-        control={control}
-        name="tags"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <AppInput
-            label="Tags"
-            placeholder="tag1, tag2, tag3"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            error={errors.tags?.message}
-          />
-        )}
-      />
-
-      <View style={styles.actions}>
-        <AppButton
-          title="Cancel"
-          variant="secondary"
-          onPress={() => router.back()}
-          style={styles.cancelButton}
+        <Controller
+          control={control}
+          name="title"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <AppInput
+              label="Title"
+              placeholder="Note title"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              error={errors.title?.message}
+              autoFocus
+            />
+          )}
         />
-        <AppButton
-          title="Save Note"
-          onPress={handleSubmit(onSubmit)}
-          loading={loading}
-          style={styles.saveButton}
+
+        <Controller
+          control={control}
+          name="body"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <AppInput
+              label="Body"
+              placeholder="Write your note..."
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              error={errors.body?.message}
+              multiline
+              numberOfLines={6}
+              style={styles.bodyInput}
+            />
+          )}
         />
-      </View>
-    </ScrollView>
+
+        <Controller
+          control={control}
+          name="tags"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <AppInput
+              label="Tags"
+              placeholder="tag1, tag2, tag3"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              error={errors.tags?.message}
+            />
+          )}
+        />
+
+        <View style={styles.actions}>
+          <AppButton
+            title="Cancel"
+            variant="secondary"
+            onPress={() => router.back()}
+            style={styles.cancelButton}
+          />
+          <AppButton
+            title="Save Note"
+            onPress={handleSubmit(onSubmit)}
+            loading={loading}
+            style={styles.saveButton}
+          />
+        </View>
+      </ScrollView>
+    </AppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  scroll: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   content: {
     padding: spacing.md,
     gap: spacing.md,
+  },
+  headerRow: {
+    marginBottom: spacing.xs,
   },
   heading: {
     marginBottom: spacing.sm,
