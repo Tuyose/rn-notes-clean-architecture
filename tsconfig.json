@@ -4,14 +4,29 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@features/*": ["src/features/*"],
-      "@core/*": ["src/core/*"],
-      "@design-system/*": ["src/core/design-system/*"]
+      "@/*": [
+        "src/*"
+      ],
+      "@features/*": [
+        "src/features/*"
+      ],
+      "@core/*": [
+        "src/core/*"
+      ],
+      "@design-system/*": [
+        "src/core/design-system/*"
+      ]
     },
     "ignoreDeprecations": "6.0",
-    "types": ["jest"]
+    "types": [
+      "jest"
+    ]
   },
-  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
