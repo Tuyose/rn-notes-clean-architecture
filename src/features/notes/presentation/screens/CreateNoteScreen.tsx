@@ -10,7 +10,7 @@ import {
   AppScreen,
   ScreenHeader,
 } from '../../../../core/design-system';
-import { colors, spacing, radius } from '../../../../core/theme';
+import { colors, spacing } from '../../../../core/theme';
 import { useNotesStore } from '../store';
 import { createNoteSchema, parseTagsString } from '../../validation';
 import type { CreateNoteFormData } from '../../validation';
@@ -25,11 +25,7 @@ export function CreateNoteScreen() {
     formState: { errors },
   } = useForm<CreateNoteFormData>({
     resolver: zodResolver(createNoteSchema),
-    defaultValues: {
-      title: '',
-      body: '',
-      tags: '',
-    },
+    defaultValues: { title: '', body: '', tags: '' },
     mode: 'onBlur',
   });
 
@@ -48,12 +44,11 @@ export function CreateNoteScreen() {
   return (
     <AppScreen>
       <ScreenHeader
-        title="New Note"
         onBack={() => router.back()}
         rightAction={
           <AppButton
             title="Save"
-            variant="soft"
+            variant="ghost"
             size="sm"
             onPress={handleSubmit(onSubmit)}
             loading={loading}
@@ -68,26 +63,27 @@ export function CreateNoteScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Title field — large, clean, feels like a note title */}
+        {/* Title — large, borderless, document-style */}
         <Controller
           control={control}
           name="title"
           render={({ field: { onChange, onBlur, value } }) => (
             <View>
               <AppInput
-                placeholder="Note title"
+                placeholder="Title"
                 value={value}
                 onChangeText={onChange}
                 onBlur={onBlur}
                 error={errors.title?.message}
                 autoFocus
+                variant="borderless"
                 style={styles.titleInput}
               />
             </View>
           )}
         />
 
-        {/* Body field — writing surface */}
+        {/* Body — writing surface */}
         <Controller
           control={control}
           name="body"
@@ -100,60 +96,37 @@ export function CreateNoteScreen() {
                 onBlur={onBlur}
                 error={errors.body?.message}
                 multiline
-                numberOfLines={8}
+                numberOfLines={10}
+                variant="borderless"
                 style={styles.bodyInput}
               />
             </View>
           )}
         />
 
-        {/* Tags field — secondary */}
-        <View style={styles.tagsSection}>
+        {/* Tags — subtle, collapsed */}
+        <View style={styles.tagsRow}>
           <Controller
             control={control}
             name="tags"
             render={({ field: { onChange, onBlur, value } }) => (
-              <View>
-                <AppInput
-                  label="Tags"
-                  placeholder="react, typescript, ideas"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  error={errors.tags?.message}
-                />
-                <AppText variant="caption" color={colors.gray400} style={styles.helper}>
-                  Separate with commas. Leave empty for no tags.
-                </AppText>
-              </View>
+              <AppInput
+                placeholder="Add tags"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={errors.tags?.message}
+                variant="borderless"
+                style={styles.tagsInput}
+              />
             )}
           />
         </View>
 
         {/* Metadata hint */}
-        <View style={styles.metaHint}>
-          <View style={styles.metaDot} />
-          <AppText variant="caption" color={colors.gray400}>
-            Local only · Saved to device
-          </AppText>
-        </View>
-
-        {/* Bottom save action */}
-        <View style={styles.bottomActions}>
-          <AppButton
-            title="Cancel"
-            variant="secondary"
-            onPress={() => router.back()}
-            style={styles.cancelButton}
-          />
-          <AppButton
-            title="Save Note"
-            onPress={handleSubmit(onSubmit)}
-            loading={loading}
-            disabled={loading}
-            style={styles.saveButton}
-          />
-        </View>
+        <AppText variant="caption" color={colors.gray400} style={styles.meta}>
+          Local draft
+        </AppText>
       </ScrollView>
     </AppScreen>
   );
@@ -167,51 +140,28 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxl,
   },
   titleInput: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '600',
-    borderWidth: 0,
-    paddingHorizontal: 0,
-    paddingVertical: spacing.sm,
-    backgroundColor: 'transparent',
+    paddingVertical: spacing.xs,
+    marginBottom: spacing.xs,
   },
   bodyInput: {
-    minHeight: 180,
+    minHeight: 200,
     textAlignVertical: 'top',
-    borderWidth: 0,
-    paddingHorizontal: 0,
-    backgroundColor: 'transparent',
     lineHeight: 26,
+    paddingVertical: spacing.xs,
   },
-  tagsSection: {
+  tagsRow: {
     marginTop: spacing.md,
-    paddingTop: spacing.md,
+    paddingTop: spacing.sm,
     borderTopWidth: 1,
     borderTopColor: colors.divider,
   },
-  helper: {
-    marginTop: spacing.xxs,
+  tagsInput: {
+    fontSize: 14,
+    paddingVertical: spacing.xs,
   },
-  metaHint: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
+  meta: {
     marginTop: spacing.lg,
-    marginBottom: spacing.md,
-  },
-  metaDot: {
-    width: 6,
-    height: 6,
-    borderRadius: radius.full,
-    backgroundColor: colors.success,
-  },
-  bottomActions: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  cancelButton: {
-    flex: 1,
-  },
-  saveButton: {
-    flex: 2,
   },
 });
