@@ -10,7 +10,7 @@ import {
   AppScreen,
 } from '../../../../core/design-system';
 import { spacing } from '../../../../core/theme';
-import { NoteCard } from '../components';
+import { NoteListItem } from '../components';
 import { useNotesStore } from '../store';
 import type { Note } from '../../domain/entities';
 
@@ -36,6 +36,7 @@ export function NotesListScreen() {
     router.push('/notes/new');
   }, [router]);
 
+  // Notes are already sorted by updatedAt descending from the repository
   const activeNotes = notes.filter((n) => !n.isArchived);
   const filteredNotes =
     selectedFilter === 'All'
@@ -44,9 +45,16 @@ export function NotesListScreen() {
           n.tags.some((t) => t.toLowerCase() === selectedFilter.toLowerCase()),
         );
 
+  const renderNoteItem = useCallback(
+    ({ item }: { item: Note }) => <NoteListItem note={item} onPress={handleNotePress} />,
+    [handleNotePress],
+  );
+
+  const keyExtractor = useCallback((item: Note) => item.id, []);
+
   return (
     <AppScreen>
-      {/* Compact header */}
+      {/* Header */}
       <View style={styles.header}>
         <AppText variant="h2">Notes</AppText>
         <AppButton title="+ New" variant="ghost" size="sm" onPress={handleCreate} />
@@ -72,11 +80,11 @@ export function NotesListScreen() {
         ))}
       </View>
 
-      {/* Notes list */}
+      {/* Notes list — sorted by updatedAt descending */}
       <FlatList
         data={filteredNotes}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <NoteCard note={item} onPress={handleNotePress} />}
+        keyExtractor={keyExtractor}
+        renderItem={renderNoteItem}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
