@@ -3,8 +3,15 @@ import { StyleSheet, View, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AppText, AppButton, AppInput, AppScreen } from '../../../../core/design-system';
-import { spacing } from '../../../../core/theme';
+import {
+  AppText,
+  AppButton,
+  AppInput,
+  AppCard,
+  AppScreen,
+  ScreenHeader,
+} from '../../../../core/design-system';
+import { colors, spacing } from '../../../../core/theme';
 import { useNotesStore } from '../store';
 import { createNoteSchema, parseTagsString } from '../../validation';
 import type { CreateNoteFormData } from '../../validation';
@@ -24,6 +31,7 @@ export function CreateNoteScreen() {
       body: '',
       tags: '',
     },
+    mode: 'onBlur',
   });
 
   const onSubmit = useCallback(
@@ -39,73 +47,74 @@ export function CreateNoteScreen() {
   );
 
   return (
-    <AppScreen noVerticalPadding>
+    <AppScreen>
+      <ScreenHeader title="New Note" onBack={() => router.back()} />
+
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        <View style={styles.headerRow}>
-          <AppButton
-            title="← Back"
-            variant="ghost"
-            size="sm"
-            onPress={() => router.back()}
-          />
-        </View>
-
-        <AppText variant="h2" style={styles.heading}>
-          New Note
+        <AppText variant="body" color={colors.gray500} style={styles.intro}>
+          Write something worth remembering.
         </AppText>
 
-        <Controller
-          control={control}
-          name="title"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <AppInput
-              label="Title"
-              placeholder="Note title"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              error={errors.title?.message}
-              autoFocus
-            />
-          )}
-        />
+        <AppCard variant="default" style={styles.formCard}>
+          <Controller
+            control={control}
+            name="title"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <AppInput
+                label="Title"
+                placeholder="Note title"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={errors.title?.message}
+                autoFocus
+              />
+            )}
+          />
 
-        <Controller
-          control={control}
-          name="body"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <AppInput
-              label="Body"
-              placeholder="Write your note..."
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              error={errors.body?.message}
-              multiline
-              numberOfLines={6}
-              style={styles.bodyInput}
-            />
-          )}
-        />
+          <Controller
+            control={control}
+            name="body"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <AppInput
+                label="Body"
+                placeholder="Write your note…"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={errors.body?.message}
+                multiline
+                numberOfLines={6}
+                style={styles.bodyInput}
+              />
+            )}
+          />
 
-        <Controller
-          control={control}
-          name="tags"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <AppInput
-              label="Tags"
-              placeholder="tag1, tag2, tag3"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              error={errors.tags?.message}
-            />
-          )}
-        />
+          <Controller
+            control={control}
+            name="tags"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <View>
+                <AppInput
+                  label="Tags"
+                  placeholder="react, typescript, ideas"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={errors.tags?.message}
+                />
+                <AppText variant="caption" color={colors.gray400} style={styles.helper}>
+                  Separate tags with commas. Leave empty for no tags.
+                </AppText>
+              </View>
+            )}
+          />
+        </AppCard>
 
         <View style={styles.actions}>
           <AppButton
@@ -118,6 +127,7 @@ export function CreateNoteScreen() {
             title="Save Note"
             onPress={handleSubmit(onSubmit)}
             loading={loading}
+            disabled={loading}
             style={styles.saveButton}
           />
         </View>
@@ -131,23 +141,25 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: spacing.md,
+    paddingBottom: spacing.xxl,
+  },
+  intro: {
+    marginBottom: spacing.md,
+  },
+  formCard: {
     gap: spacing.md,
-  },
-  headerRow: {
-    marginBottom: spacing.xs,
-  },
-  heading: {
-    marginBottom: spacing.sm,
+    marginBottom: spacing.lg,
   },
   bodyInput: {
-    minHeight: 120,
+    minHeight: 140,
     textAlignVertical: 'top',
+  },
+  helper: {
+    marginTop: spacing.xs,
   },
   actions: {
     flexDirection: 'row',
     gap: spacing.sm,
-    marginTop: spacing.md,
   },
   cancelButton: {
     flex: 1,
