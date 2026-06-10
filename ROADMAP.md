@@ -1,6 +1,16 @@
 # Roadmap
 
-## v1.1 — UI Polish (Current)
+## v1.2 — Modern UI Redesign (Current)
+
+- [x] Expanded design tokens with accent colors and softer surfaces
+- [x] Notes list hero header with display title and subtitle
+- [x] Horizontal tag filter chips (All, Work, Ideas, Architecture, Planning)
+- [x] Redesigned note cards with better hierarchy and pressed states
+- [x] Clean editor layout with borderless inputs and save-in-header
+- [x] Premium detail screen with readable body and metadata section
+- [x] Richer demo seed data (6 realistic notes)
+
+## v1.1 — UI Polish
 
 - [x] Reusable screen layout components (AppScreen, ScreenHeader)
 - [x] Notes list with demo data, subtitle, and polished cards

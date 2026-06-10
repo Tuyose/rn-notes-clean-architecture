@@ -17,19 +17,19 @@ A production-quality React Native notes app demonstrating clean architecture, ty
 | Linting        | ESLint + Prettier                  |
 | CI             | GitHub Actions                     |
 
-## Features (v1 — First Slice)
+## Features
 
-- ✅ Notes list screen with empty state and demo data
-- ✅ Create note with form validation
-- ✅ Note detail view with archive and delete
-- ✅ Reusable screen layout primitives (AppScreen, ScreenHeader)
-- ✅ Design system primitives (AppText, AppButton, AppInput, AppCard, AppBadge, AppEmptyState)
-- ✅ Typed theme tokens (colors, spacing, typography, radius)
+- ✅ Modern notes list with hero header, search bar, and tag filter chips
+- ✅ Polished note cards with title, body preview, tag badges, and timestamps
+- ✅ Create note screen with clean editor layout and save-in-header
+- ✅ Note detail screen with readable body, metadata, and archive/delete actions
+- ✅ Design system primitives (AppText, AppButton, AppInput, AppCard, AppBadge, AppEmptyState, AppScreen, ScreenHeader)
+- ✅ Typed design tokens (colors, spacing, typography, radius, shadows)
 - ✅ Domain entities and repository interface
 - ✅ In-memory repository implementation
 - ✅ Use case layer with business rules
 - ✅ Zustand store for state management
-- ✅ Unit tests for domain, use cases, validation, and components
+- ✅ Unit tests for domain, use cases, validation, and repository
 
 ## Architecture
 
@@ -149,7 +149,7 @@ Tests cover:
 
 | Notes List | Create Note | Note Detail |
 | :--------: | :---------: | :---------: |
-| ![Notes List](docs/screenshots/notes-list.png) | ![Create Note](docs/screenshots/create-note.png) | ![Note Detail](docs/screenshots/note-detail.png) |
+| ![Notes List](docs/screenshots/notes-list-modern.png) | ![Create Note](docs/screenshots/create-note-modern.png) | ![Note Detail](docs/screenshots/note-detail-modern.png) |
 
 > Screenshots are placeholders. Run the app on a device or simulator to see the polished UI.
 
