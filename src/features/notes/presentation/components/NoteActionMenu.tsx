@@ -1,7 +1,9 @@
-import React from 'react';
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import React, { useEffect, useMemo } from 'react';
+import { Modal, Pressable, StyleSheet, View, Animated, Dimensions } from 'react-native';
 import { AppText, AppButton } from '../../../../core/design-system';
 import { colors, spacing, radius } from '../../../../core/theme';
+
+const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 interface NoteActionMenuProps {
   visible: boolean;
@@ -14,7 +16,10 @@ interface NoteActionMenuProps {
 
 /**
  * Bottom-sheet style action menu for note actions.
- * Uses React Native Modal — no third-party library.
+ *
+ * Backdrop fades in place (opacity only).
+ * Sheet slides up from the bottom (translateY).
+ * Both use separate Animated values so they don't move together.
  */
 export function NoteActionMenu({
   visible,
@@ -24,9 +29,55 @@ export function NoteActionMenu({
   onDelete,
   onClose,
 }: NoteActionMenuProps) {
+  const backdropOpacity = useMemo(() => new Animated.Value(0), []);
+  const sheetTranslate = useMemo(() => new Animated.Value(SCREEN_HEIGHT), []);
+
+  useEffect(() => {
+    if (visible) {
+      // Fade in backdrop + slide up sheet in parallel
+      Animated.parallel([
+        Animated.timing(backdropOpacity, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.spring(sheetTranslate, {
+          toValue: 0,
+          damping: 20,
+          stiffness: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      // Fade out backdrop + slide down sheet in parallel
+      Animated.parallel([
+        Animated.timing(backdropOpacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(sheetTranslate, {
+          toValue: SCREEN_HEIGHT,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [visible, backdropOpacity, sheetTranslate]);
+
+  if (!visible) return null;
+
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable style={styles.overlay} onPress={onClose}>
+    <Modal visible transparent animationType="none" onRequestClose={onClose}>
+      {/* Backdrop — fades in place, does not slide */}
+      <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
+        <Pressable style={styles.backdropPress} onPress={onClose} />
+      </Animated.View>
+
+      {/* Sheet — slides up independently */}
+      <Animated.View
+        style={[styles.sheetContainer, { transform: [{ translateY: sheetTranslate }] }]}
+      >
         <View style={styles.sheet}>
           <View style={styles.handle} />
 
@@ -72,16 +123,24 @@ export function NoteActionMenu({
             <AppButton title="Cancel" variant="secondary" fullWidth onPress={onClose} />
           </View>
         </View>
-      </Pressable>
+      </Animated.View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
+  backdrop: {
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'flex-end',
+  },
+  backdropPress: {
+    flex: 1,
+  },
+  sheetContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   sheet: {
     backgroundColor: colors.surface,
