@@ -7,19 +7,23 @@ import type { Note } from '../../domain/entities';
 interface NoteListItemProps {
   note: Note;
   onPress: (note: Note) => void;
+  onLongPress?: (note: Note) => void;
 }
 
 /**
  * Compact note row for the inbox list.
  * Shows title, 1-line preview, first 2 tags, and relative time.
+ * Supports long press for action menu.
  */
-export function NoteListItem({ note, onPress }: NoteListItemProps) {
+export function NoteListItem({ note, onPress, onLongPress }: NoteListItemProps) {
   const preview = note.body.length > 80 ? `${note.body.slice(0, 80)}…` : note.body;
   const relativeDate = getRelativeDate(note.updatedAt);
 
   return (
     <Pressable
       onPress={() => onPress(note)}
+      onLongPress={onLongPress ? () => onLongPress(note) : undefined}
+      delayLongPress={400}
       accessibilityRole="button"
       style={({ pressed }) => [styles.wrapper, pressed && styles.pressed]}
     >
@@ -82,7 +86,7 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.divider,
   },
   pressed: {
-    backgroundColor: colors.gray50,
+    backgroundColor: colors.gray100,
   },
   row: {
     flexDirection: 'row',
