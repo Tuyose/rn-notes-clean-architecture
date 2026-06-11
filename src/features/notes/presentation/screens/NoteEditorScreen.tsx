@@ -1,5 +1,14 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
-import { StyleSheet, View, ScrollView, Alert } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
+  Pressable,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -29,6 +38,7 @@ export function NoteEditorScreen({ note }: NoteEditorScreenProps) {
     useNotesStore();
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hasChanges = useRef(false);
 
   const isNew = !note;
 
@@ -37,6 +47,7 @@ export function NoteEditorScreen({ note }: NoteEditorScreenProps) {
     handleSubmit,
     formState: { errors, isDirty },
     reset,
+    watch,
   } = useForm<NoteFormData>({
     resolver: zodResolver(noteFormSchema),
     defaultValues: {
@@ -46,6 +57,14 @@ export function NoteEditorScreen({ note }: NoteEditorScreenProps) {
     },
   });
 
+  // Track if content has changed from the original
+  useEffect(() => {
+    const subscription = watch(() => {
+      hasChanges.current = true;
+    });
+    return () => subscription.unsubscribe();
+  }, [watch]);
+
   useEffect(() => {
     if (note) {
       reset({
@@ -53,6 +72,7 @@ export function NoteEditorScreen({ note }: NoteEditorScreenProps) {
         body: note.body,
         tags: tagsToString(note.tags),
       });
+      hasChanges.current = false;
     }
   }, [note, reset]);
 
@@ -62,9 +82,25 @@ export function NoteEditorScreen({ note }: NoteEditorScreenProps) {
     };
   }, []);
 
+  const handleBack = useCallback(() => {
+    if (hasChanges.current && isDirty) {
+      Alert.alert('Unsaved Changes', 'You have unsaved changes.', [
+        { text: 'Keep Editing', style: 'cancel' },
+        {
+          text: 'Discard',
+          style: 'destructive',
+          onPress: () => router.back(),
+        },
+      ]);
+    } else {
+      router.back();
+    }
+  }, [isDirty, router]);
+
   const onSubmit = useCallback(
     async (data: NoteFormData) => {
       setSaveStatus('saving');
+      Keyboard.dismiss();
       try {
         if (isNew) {
           await createNote({
@@ -80,6 +116,7 @@ export function NoteEditorScreen({ note }: NoteEditorScreenProps) {
           });
         }
 
+        hasChanges.current = false;
         setSaveStatus('saved');
         if (savedTimer.current) clearTimeout(savedTimer.current);
         savedTimer.current = setTimeout(() => setSaveStatus('idle'), 2000);
@@ -155,9 +192,9 @@ export function NoteEditorScreen({ note }: NoteEditorScreenProps) {
   const canSave = isNew || isUnsaved || saveStatus === 'saving';
 
   return (
-    <AppScreen>
+    <AppScreen noVerticalPadding>
       <ScreenHeader
-        onBack={() => router.back()}
+        onBack={handleBack}
         rightAction={
           <AppButton
             title={getSaveButtonTitle()}
@@ -170,103 +207,120 @@ export function NoteEditorScreen({ note }: NoteEditorScreenProps) {
         }
       />
 
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoid}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
-        {/* Title */}
-        <Controller
-          control={control}
-          name="title"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <View>
-              <AppInput
-                placeholder="Title"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={errors.title?.message}
-                autoFocus={isNew}
-                variant="borderless"
-                style={styles.titleInput}
-              />
-            </View>
-          )}
-        />
-
-        {/* Body */}
-        <Controller
-          control={control}
-          name="body"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <View>
-              <AppInput
-                placeholder="Start writing…"
-                value={value ?? ''}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={errors.body?.message}
-                multiline
-                numberOfLines={10}
-                variant="borderless"
-                style={styles.bodyInput}
-              />
-            </View>
-          )}
-        />
-
-        {/* Tags */}
-        <View style={styles.tagsRow}>
-          <Controller
-            control={control}
-            name="tags"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <AppInput
-                placeholder="Add tags"
-                value={value ?? ''}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={errors.tags?.message}
-                variant="borderless"
-                style={styles.tagsInput}
-              />
-            )}
-          />
-        </View>
-
-        {/* Metadata */}
-        <View style={styles.metaRow}>
-          <AppText variant="caption" color={colors.gray400}>
-            {isNew ? 'Local draft' : `Updated ${updatedDate}`}
-          </AppText>
-          {isUnsaved && !isNew && (
-            <AppText variant="caption" color={colors.warning}>
-              Unsaved changes
-            </AppText>
-          )}
-          {saveStatus === 'saved' && !isNew && (
-            <AppText variant="caption" color={colors.success}>
-              Saved
-            </AppText>
-          )}
-        </View>
-
-        {/* Actions — only for existing notes, now more subtle */}
-        {!isNew && (
-          <View style={styles.actions}>
-            <AppButton
-              title={note!.isArchived ? 'Unarchive' : 'Archive'}
-              variant="ghost"
-              size="sm"
-              onPress={handleArchive}
+        <Pressable style={styles.dismissArea} onPress={Keyboard.dismiss}>
+          <ScrollView
+            style={styles.scroll}
+            contentContainerStyle={styles.content}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Title */}
+            <Controller
+              control={control}
+              name="title"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View>
+                  <AppInput
+                    placeholder="Title"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    error={errors.title?.message}
+                    autoFocus={isNew}
+                    variant="borderless"
+                    style={styles.titleInput}
+                    returnKeyType="next"
+                  />
+                </View>
+              )}
             />
-            <View style={styles.actionDivider} />
-            <AppButton title="Delete" variant="danger" size="sm" onPress={handleDelete} />
-          </View>
-        )}
-      </ScrollView>
+
+            {/* Body */}
+            <Controller
+              control={control}
+              name="body"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View>
+                  <AppInput
+                    placeholder="Start writing…"
+                    value={value ?? ''}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    error={errors.body?.message}
+                    multiline
+                    numberOfLines={10}
+                    variant="borderless"
+                    style={styles.bodyInput}
+                    textAlignVertical="top"
+                  />
+                </View>
+              )}
+            />
+
+            {/* Tags */}
+            <View style={styles.tagsRow}>
+              <Controller
+                control={control}
+                name="tags"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <AppInput
+                    placeholder="Add tags (comma separated)"
+                    value={value ?? ''}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    error={errors.tags?.message}
+                    variant="borderless"
+                    style={styles.tagsInput}
+                    returnKeyType="done"
+                    onSubmitEditing={Keyboard.dismiss}
+                  />
+                )}
+              />
+            </View>
+
+            {/* Metadata */}
+            <View style={styles.metaRow}>
+              <AppText variant="caption" color={colors.gray400}>
+                {isNew ? 'Local draft' : `Updated ${updatedDate}`}
+              </AppText>
+              {isUnsaved && !isNew && (
+                <AppText variant="caption" color={colors.warning}>
+                  Unsaved changes
+                </AppText>
+              )}
+              {saveStatus === 'saved' && !isNew && (
+                <AppText variant="caption" color={colors.success}>
+                  Saved
+                </AppText>
+              )}
+            </View>
+
+            {/* Actions — only for existing notes */}
+            {!isNew && (
+              <View style={styles.actions}>
+                <AppButton
+                  title={note!.isArchived ? 'Unarchive' : 'Archive'}
+                  variant="ghost"
+                  size="sm"
+                  onPress={handleArchive}
+                />
+                <View style={styles.actionDivider} />
+                <AppButton
+                  title="Delete"
+                  variant="danger"
+                  size="sm"
+                  onPress={handleDelete}
+                />
+              </View>
+            )}
+          </ScrollView>
+        </Pressable>
+      </KeyboardAvoidingView>
 
       {/* Toast for undo feedback */}
       <AppToast
@@ -281,11 +335,18 @@ export function NoteEditorScreen({ note }: NoteEditorScreenProps) {
 }
 
 const styles = StyleSheet.create({
+  keyboardAvoid: {
+    flex: 1,
+  },
+  dismissArea: {
+    flex: 1,
+  },
   scroll: {
     flex: 1,
   },
   content: {
     paddingBottom: spacing.xxl,
+    paddingHorizontal: spacing.md,
   },
   titleInput: {
     fontSize: 24,
