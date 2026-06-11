@@ -1,6 +1,7 @@
 import React, { useCallback, useState, useMemo } from 'react';
 import { FlatList, StyleSheet, View, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import {
   AppText,
   AppButton,
@@ -11,7 +12,7 @@ import {
   AppToast,
 } from '../../../../core/design-system';
 import { spacing } from '../../../../core/theme';
-import { NoteListItem, NoteActionMenu } from '../components';
+import { SwipeableNoteRow, NoteActionMenu } from '../components';
 import { useNotesStore } from '../store';
 import type { Note } from '../../domain/entities';
 
@@ -50,8 +51,34 @@ export function NotesListScreen() {
   }, [router]);
 
   const handleLongPress = useCallback((note: Note) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setActionMenuNote(note);
   }, []);
+
+  const handleSwipeArchive = useCallback(
+    async (note: Note) => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      await archiveNote(note.id);
+    },
+    [archiveNote],
+  );
+
+  const handleSwipeDelete = useCallback(
+    async (note: Note) => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+      Alert.alert('Delete', 'This cannot be undone.', [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            await deleteNote(note.id);
+          },
+        },
+      ]);
+    },
+    [deleteNote],
+  );
 
   const handleArchiveFromMenu = useCallback(async () => {
     if (!actionMenuNote) return;
@@ -62,7 +89,11 @@ export function NotesListScreen() {
   const handleDeleteFromMenu = useCallback(async () => {
     if (!actionMenuNote) return;
     Alert.alert('Delete', 'This cannot be undone.', [
-      { text: 'Cancel', style: 'cancel', onPress: () => setActionMenuNote(null) },
+      {
+        text: 'Cancel',
+        style: 'cancel',
+        onPress: () => setActionMenuNote(null),
+      },
       {
         text: 'Delete',
         style: 'destructive',
@@ -114,9 +145,15 @@ export function NotesListScreen() {
 
   const renderNoteItem = useCallback(
     ({ item }: { item: Note }) => (
-      <NoteListItem note={item} onPress={handleNotePress} onLongPress={handleLongPress} />
+      <SwipeableNoteRow
+        note={item}
+        onPress={handleNotePress}
+        onLongPress={handleLongPress}
+        onSwipeArchive={handleSwipeArchive}
+        onSwipeDelete={handleSwipeDelete}
+      />
     ),
-    [handleNotePress, handleLongPress],
+    [handleNotePress, handleLongPress, handleSwipeArchive, handleSwipeDelete],
   );
 
   const keyExtractor = useCallback((item: Note) => item.id, []);
