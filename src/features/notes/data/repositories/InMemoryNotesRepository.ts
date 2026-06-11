@@ -65,6 +65,18 @@ export class InMemoryNotesRepository implements NotesRepository {
     };
   }
 
+  async unarchiveNote(id: string): Promise<void> {
+    const index = this.notes.findIndex((n) => n.id === id);
+    if (index === -1) {
+      throw new Error(`Note with id "${id}" not found`);
+    }
+    this.notes[index] = {
+      ...this.notes[index],
+      isArchived: false,
+      updatedAt: new Date().toISOString(),
+    };
+  }
+
   async deleteNote(id: string): Promise<void> {
     const index = this.notes.findIndex((n) => n.id === id);
     if (index === -1) {

@@ -106,6 +106,20 @@ export class AsyncStorageNotesRepository implements NotesRepository {
     await this.persist();
   }
 
+  async unarchiveNote(id: string): Promise<void> {
+    this.ensureLoaded();
+    const index = this.notes.findIndex((n) => n.id === id);
+    if (index === -1) {
+      throw new Error(`Note with id "${id}" not found`);
+    }
+    this.notes[index] = {
+      ...this.notes[index],
+      isArchived: false,
+      updatedAt: new Date().toISOString(),
+    };
+    await this.persist();
+  }
+
   async deleteNote(id: string): Promise<void> {
     this.ensureLoaded();
     const index = this.notes.findIndex((n) => n.id === id);

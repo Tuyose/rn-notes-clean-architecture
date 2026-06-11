@@ -13,5 +13,6 @@ export interface NotesRepository {
   createNote(input: CreateNoteInput): Promise<Note>;
   updateNote(id: string, input: UpdateNoteInput): Promise<Note>;
   archiveNote(id: string): Promise<void>;
+  unarchiveNote(id: string): Promise<void>;
   deleteNote(id: string): Promise<void>;
 }
