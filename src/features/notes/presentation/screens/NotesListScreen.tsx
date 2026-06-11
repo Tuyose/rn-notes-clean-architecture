@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useMemo } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, View, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
   AppText,
@@ -8,19 +8,30 @@ import {
   AppBadge,
   AppEmptyState,
   AppScreen,
+  AppToast,
 } from '../../../../core/design-system';
 import { spacing } from '../../../../core/theme';
-import { NoteListItem } from '../components';
+import { NoteListItem, NoteActionMenu } from '../components';
 import { useNotesStore } from '../store';
 import type { Note } from '../../domain/entities';
 
 export function NotesListScreen() {
   const router = useRouter();
-  const { notes, loading, hydrated, error, hydrate } = useNotesStore();
+  const {
+    notes,
+    loading,
+    hydrated,
+    error,
+    toast,
+    hydrate,
+    archiveNote,
+    deleteNote,
+    hideToast,
+  } = useNotesStore();
   const [selectedFilter, setSelectedFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [actionMenuNote, setActionMenuNote] = useState<Note | null>(null);
 
-  // Hydrate from AsyncStorage on mount
   React.useEffect(() => {
     if (!hydrated) {
       hydrate();
@@ -38,7 +49,31 @@ export function NotesListScreen() {
     router.push('/notes/new');
   }, [router]);
 
-  // Derive available tags from current notes
+  const handleLongPress = useCallback((note: Note) => {
+    setActionMenuNote(note);
+  }, []);
+
+  const handleArchiveFromMenu = useCallback(async () => {
+    if (!actionMenuNote) return;
+    await archiveNote(actionMenuNote.id);
+    setActionMenuNote(null);
+  }, [actionMenuNote, archiveNote]);
+
+  const handleDeleteFromMenu = useCallback(async () => {
+    if (!actionMenuNote) return;
+    Alert.alert('Delete', 'This cannot be undone.', [
+      { text: 'Cancel', style: 'cancel', onPress: () => setActionMenuNote(null) },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          await deleteNote(actionMenuNote.id);
+          setActionMenuNote(null);
+        },
+      },
+    ]);
+  }, [actionMenuNote, deleteNote]);
+
   const availableTags = useMemo(() => {
     const tagSet = new Set<string>();
     for (const note of notes) {
@@ -53,20 +88,17 @@ export function NotesListScreen() {
 
   const filterChips = useMemo(() => ['All', ...availableTags], [availableTags]);
 
-  // Filter notes: search + tag
   const activeNotes = notes.filter((n) => !n.isArchived);
 
   const filteredNotes = useMemo(() => {
     let result = activeNotes;
 
-    // Tag filter
     if (selectedFilter !== 'All') {
       result = result.filter((n) =>
         n.tags.some((t) => t.toLowerCase() === selectedFilter.toLowerCase()),
       );
     }
 
-    // Search filter
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       result = result.filter(
@@ -81,8 +113,10 @@ export function NotesListScreen() {
   }, [activeNotes, selectedFilter, searchQuery]);
 
   const renderNoteItem = useCallback(
-    ({ item }: { item: Note }) => <NoteListItem note={item} onPress={handleNotePress} />,
-    [handleNotePress],
+    ({ item }: { item: Note }) => (
+      <NoteListItem note={item} onPress={handleNotePress} onLongPress={handleLongPress} />
+    ),
+    [handleNotePress, handleLongPress],
   );
 
   const keyExtractor = useCallback((item: Note) => item.id, []);
@@ -164,6 +198,25 @@ export function NotesListScreen() {
             )
           ) : null
         }
+      />
+
+      {/* Action menu */}
+      <NoteActionMenu
+        visible={actionMenuNote !== null}
+        noteTitle={actionMenuNote?.title ?? ''}
+        isArchived={actionMenuNote?.isArchived ?? false}
+        onArchive={handleArchiveFromMenu}
+        onDelete={handleDeleteFromMenu}
+        onClose={() => setActionMenuNote(null)}
+      />
+
+      {/* Toast */}
+      <AppToast
+        visible={toast.visible}
+        message={toast.message}
+        actionLabel={toast.undoAction ? 'Undo' : undefined}
+        onAction={toast.undoAction ?? undefined}
+        onDismiss={hideToast}
       />
     </AppScreen>
   );
