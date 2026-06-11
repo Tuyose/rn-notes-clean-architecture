@@ -1,6 +1,15 @@
 # Roadmap
 
-## v0.3.0 — Interaction Quality (Current)
+## v0.4.0 — Gesture and Editor Experience (Current)
+
+- [x] Swipe actions on note rows (PanResponder + Animated)
+- [x] Haptic feedback via expo-haptics
+- [x] Editor back guard for unsaved changes
+- [x] KeyboardAvoidingView for proper keyboard handling
+- [x] Auto-focus title only on new notes
+- [x] 113 tests covering gesture and editor behavior
+
+## v0.3.0 — Interaction Quality
 
 - [x] Native navigation transitions (slide from bottom for new note)
 - [x] Note row press feedback

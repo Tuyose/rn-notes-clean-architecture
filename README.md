@@ -32,7 +32,20 @@ A React Native notes app demonstrating clean architecture, typed domain models, 
 - **Clean architecture** — domain entities, repository interfaces, use cases, and presentation layers are fully separated
 - **Typed design system** — AppText, AppButton, AppInput, AppCard, AppBadge, AppEmptyState, AppScreen, ScreenHeader, AppToast
 - **Validation** — Zod schemas with React Hook Form integration
-- **Tests** — 95 tests covering repository, persistence, use cases, validation, sorting, filtering, and interaction behavior
+- **Swipe actions** — swipe left to archive, swipe right to delete, with haptic feedback
+- **Unsaved changes guard** — confirmation dialog when leaving editor with unsaved changes
+- **Keyboard-aware editor** — KeyboardAvoidingView, dismiss keyboard on tap, proper input focus
+- **Tests** — 113 tests covering repository, persistence, use cases, validation, sorting, filtering, gestures, and editor behavior
+
+## v0.4.0 — Gesture and Editor Experience
+
+- Swipe actions on note rows (PanResponder + Animated, no gesture library)
+- Swipe left reveals Archive, swipe right reveals Delete
+- Haptic feedback via expo-haptics on swipe and long press
+- Editor back guard: confirmation dialog for unsaved changes
+- KeyboardAvoidingView for proper keyboard handling
+- Auto-focus title only on new notes, not existing notes
+- 113 tests, dependency stability preserved
 
 ## v0.3.0 — Interaction Quality
 
