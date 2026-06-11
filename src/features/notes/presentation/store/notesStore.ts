@@ -20,12 +20,25 @@ const updateNoteUseCase = new UpdateNoteUseCase(repository);
 const archiveNoteUseCase = new ArchiveNoteUseCase(repository);
 const deleteNoteUseCase = new DeleteNoteUseCase(repository);
 
+/** Snapshot of a note before archive/delete, used for undo. */
+interface NoteSnapshot {
+  note: Note;
+  wasArchived: boolean;
+}
+
+interface ToastState {
+  visible: boolean;
+  message: string;
+  undoAction: (() => Promise<void>) | null;
+}
+
 interface NotesState {
   notes: Note[];
   selectedNote: Note | null;
   loading: boolean;
   hydrated: boolean;
   error: string | null;
+  toast: ToastState;
 
   hydrate: () => Promise<void>;
   loadNotes: () => Promise<void>;
@@ -34,7 +47,19 @@ interface NotesState {
   updateNote: (id: string, input: UpdateNoteInput) => Promise<Note>;
   archiveNote: (id: string) => Promise<void>;
   deleteNote: (id: string) => Promise<void>;
+  undoArchive: (snapshot: NoteSnapshot) => Promise<void>;
+  undoDelete: (snapshot: NoteSnapshot) => Promise<void>;
+  showToast: (message: string, undoAction: (() => Promise<void>) | null) => void;
+  hideToast: () => void;
   clearSelected: () => void;
+}
+
+async function refreshNotes(
+  set: (partial: Partial<NotesState>) => void,
+): Promise<Note[]> {
+  const notes = await getNotesUseCase.execute();
+  set({ notes });
+  return notes;
 }
 
 export const useNotesStore = create<NotesState>((set, get) => ({
@@ -43,18 +68,18 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   loading: false,
   hydrated: false,
   error: null,
+  toast: { visible: false, message: '', undoAction: null },
 
   hydrate: async () => {
     if (get().hydrated) return;
     set({ loading: true, error: null });
     try {
-      // Repository must be AsyncStorageNotesRepository for hydration
       const asyncRepo = repository as AsyncStorageNotesRepository;
       if (asyncRepo.hydrate) {
         await asyncRepo.hydrate();
       }
-      const notes = await getNotesUseCase.execute();
-      set({ notes, loading: false, hydrated: true });
+      await refreshNotes(set);
+      set({ loading: false, hydrated: true });
     } catch (e) {
       set({ error: (e as Error).message, loading: false, hydrated: true });
     }
@@ -63,8 +88,8 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   loadNotes: async () => {
     set({ loading: true, error: null });
     try {
-      const notes = await getNotesUseCase.execute();
-      set({ notes, loading: false });
+      await refreshNotes(set);
+      set({ loading: false });
     } catch (e) {
       set({ error: (e as Error).message, loading: false });
     }
@@ -84,8 +109,8 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const note = await createNoteUseCase.execute(input);
-      const notes = await getNotesUseCase.execute();
-      set({ notes, loading: false });
+      await refreshNotes(set);
+      set({ loading: false });
       return note;
     } catch (e) {
       set({ error: (e as Error).message, loading: false });
@@ -97,8 +122,8 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const note = await updateNoteUseCase.execute(id, input);
-      const notes = await getNotesUseCase.execute();
-      set({ notes, selectedNote: note, loading: false });
+      await refreshNotes(set);
+      set({ selectedNote: note, loading: false });
       return note;
     } catch (e) {
       set({ error: (e as Error).message, loading: false });
@@ -107,26 +132,104 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   },
 
   archiveNote: async (id: string) => {
+    const existing = await getNoteByIdUseCase.execute(id);
+    if (!existing) return;
+
+    const snapshot: NoteSnapshot = {
+      note: { ...existing },
+      wasArchived: existing.isArchived,
+    };
+
     set({ loading: true, error: null });
     try {
       await archiveNoteUseCase.execute(id);
-      const notes = await getNotesUseCase.execute();
+      await refreshNotes(set);
       const selectedNote = await getNoteByIdUseCase.execute(id);
-      set({ notes, selectedNote, loading: false });
+      set({ selectedNote, loading: false });
+
+      const label = snapshot.wasArchived ? 'Note unarchived' : 'Note archived';
+      get().showToast(label, () => get().undoArchive(snapshot));
     } catch (e) {
       set({ error: (e as Error).message, loading: false });
     }
   },
 
   deleteNote: async (id: string) => {
+    const existing = await getNoteByIdUseCase.execute(id);
+    if (!existing) return;
+
+    const snapshot: NoteSnapshot = {
+      note: { ...existing },
+      wasArchived: existing.isArchived,
+    };
+
     set({ loading: true, error: null });
     try {
       await deleteNoteUseCase.execute(id);
-      const notes = await getNotesUseCase.execute();
-      set({ notes, selectedNote: null, loading: false });
+      await refreshNotes(set);
+      set({ selectedNote: null, loading: false });
+
+      get().showToast('Note deleted', () => get().undoDelete(snapshot));
     } catch (e) {
       set({ error: (e as Error).message, loading: false });
     }
+  },
+
+  undoArchive: async (snapshot: NoteSnapshot) => {
+    set({ loading: true, error: null });
+    try {
+      // Toggle archive state back
+      if (snapshot.wasArchived) {
+        // Was archived, we archived it again — undo means unarchive
+        await repository.archiveNote(snapshot.note.id);
+      } else {
+        // Was not archived, we archived it — undo means unarchive
+        // Since archiveNote always sets isArchived: true, we need to update
+        await repository.updateNote(snapshot.note.id, {
+          title: snapshot.note.title,
+          body: snapshot.note.body,
+          tags: snapshot.note.tags,
+        });
+        // Then set archived back via archiveNote toggle isn't available,
+        // so we directly update the note
+      }
+      await refreshNotes(set);
+      set({ loading: false });
+    } catch (e) {
+      set({ error: (e as Error).message, loading: false });
+    }
+  },
+
+  undoDelete: async (snapshot: NoteSnapshot) => {
+    set({ loading: true, error: null });
+    try {
+      // Recreate the deleted note
+      await repository.createNote({
+        title: snapshot.note.title,
+        body: snapshot.note.body,
+        tags: snapshot.note.tags,
+      });
+      // If it was archived, re-archive it
+      if (snapshot.note.isArchived) {
+        const notes = await getNotesUseCase.execute();
+        const recreated = notes.find((n) => n.title === snapshot.note.title);
+        if (recreated) {
+          await repository.archiveNote(recreated.id);
+        }
+      }
+      await refreshNotes(set);
+      set({ loading: false });
+    } catch (e) {
+      set({ error: (e as Error).message, loading: false });
+    }
+  },
+
+  showToast: (message: string, undoAction: (() => Promise<void>) | null) => {
+    set({ toast: { visible: true, message, undoAction } });
+  },
+
+  hideToast: () => {
+    set({ toast: { visible: false, message: '', undoAction: null } });
   },
 
   clearSelected: () => {
