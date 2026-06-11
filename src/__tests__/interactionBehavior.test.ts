@@ -1,5 +1,5 @@
 /**
- * Tests for interaction behavior: undo, toast, dirty state, sorting after operations.
+ * Tests for interaction behavior: archive undo, delete undo, sorting, toast.
  */
 import { InMemoryNotesRepository } from '../features/notes/data/repositories/InMemoryNotesRepository';
 
@@ -16,9 +16,6 @@ describe('Archive and undo behavior', () => {
       body: 'Body',
     });
 
-    const before = await repository.getNotes();
-    expect(before).toHaveLength(1);
-
     await repository.archiveNote(note.id);
 
     const all = await repository.getNotes();
@@ -27,7 +24,7 @@ describe('Archive and undo behavior', () => {
     expect(all).toHaveLength(1); // still exists, just archived
   });
 
-  it('undo archive restores note to active list', async () => {
+  it('unarchiveNote restores note to active list', async () => {
     const note = await repository.createNote({
       title: 'To Archive',
       body: 'Body',
@@ -36,19 +33,83 @@ describe('Archive and undo behavior', () => {
 
     await repository.archiveNote(note.id);
 
-    // Simulate undo: create a copy with isArchived: false
-    // In real store, undo would restore the snapshot
+    // Verify it's archived
     const archived = await repository.getNoteById(note.id);
     expect(archived?.isArchived).toBe(true);
 
-    // Undo by updating the note back
-    await repository.updateNote(note.id, {
-      title: note.title,
-      body: note.body,
-      tags: note.tags,
+    // Unarchive
+    await repository.unarchiveNote(note.id);
+
+    const restored = await repository.getNoteById(note.id);
+    expect(restored?.isArchived).toBe(false);
+    expect(restored?.title).toBe('To Archive');
+    expect(restored?.tags).toEqual(['work']);
+  });
+
+  it('undo archive restores note without duplicating', async () => {
+    const note = await repository.createNote({
+      title: 'Unique Note',
+      body: 'Body',
+      tags: ['work'],
     });
-    // Note: updateNote doesn't change isArchived, so we need the store logic
-    // This tests the repository behavior that the store builds on
+
+    await repository.archiveNote(note.id);
+
+    // Simulate undo: unarchive
+    await repository.unarchiveNote(note.id);
+
+    const all = await repository.getNotes();
+    // Should be exactly 1 note, not duplicated
+    expect(all).toHaveLength(1);
+    expect(all[0].id).toBe(note.id);
+    expect(all[0].isArchived).toBe(false);
+  });
+
+  it('undo archive places note according to updatedAt sort', async () => {
+    const first = await repository.createNote({
+      title: 'First',
+      body: 'Body',
+    });
+    await new Promise((r) => setTimeout(r, 10));
+    await repository.createNote({
+      title: 'Second',
+      body: 'Body',
+    });
+
+    // Archive first note
+    await repository.archiveNote(first.id);
+
+    // Undo: unarchive
+    await new Promise((r) => setTimeout(r, 10));
+    await repository.unarchiveNote(first.id);
+
+    const notes = await repository.getNotes();
+    // First note should be at top because unarchive updates updatedAt
+    expect(notes[0].id).toBe(first.id);
+  });
+
+  it('search works after archive undo', async () => {
+    const note = await repository.createNote({
+      title: 'Searchable',
+      body: 'Find me',
+      tags: ['work'],
+    });
+
+    await repository.archiveNote(note.id);
+
+    // Verify not in active list
+    const archived = await repository.getNotes();
+    const activeBefore = archived.filter((n) => !n.isArchived);
+    expect(activeBefore).toHaveLength(0);
+
+    // Undo
+    await repository.unarchiveNote(note.id);
+
+    // Verify back in active list and searchable
+    const all = await repository.getNotes();
+    const activeAfter = all.filter((n) => !n.isArchived);
+    expect(activeAfter).toHaveLength(1);
+    expect(activeAfter[0].title).toBe('Searchable');
   });
 });
 
@@ -88,6 +149,30 @@ describe('Delete and undo behavior', () => {
 
     expect(recreated.title).toBe('Deleted Note');
     expect(recreated.tags).toEqual(['work']);
+  });
+
+  it('delete undo still works after archive undo', async () => {
+    const note = await repository.createNote({
+      title: 'Test Note',
+      body: 'Body',
+    });
+
+    // Archive then undo
+    await repository.archiveNote(note.id);
+    await repository.unarchiveNote(note.id);
+
+    // Delete then undo
+    await repository.deleteNote(note.id);
+    const deleted = await repository.getNoteById(note.id);
+    expect(deleted).toBeNull();
+
+    // Undo delete
+    const recreated = await repository.createNote({
+      title: note.title,
+      body: note.body,
+      tags: note.tags,
+    });
+    expect(recreated.title).toBe('Test Note');
   });
 });
 
@@ -211,15 +296,12 @@ describe('Update note changes updatedAt', () => {
 
 describe('Toast state management', () => {
   it('toast can be shown and hidden', () => {
-    // This tests the toast state shape
     let toast = { visible: false, message: '', undoAction: null };
 
-    // Show toast
     toast = { visible: true, message: 'Note archived', undoAction: null };
     expect(toast.visible).toBe(true);
     expect(toast.message).toBe('Note archived');
 
-    // Hide toast
     toast = { visible: false, message: '', undoAction: null };
     expect(toast.visible).toBe(false);
   });

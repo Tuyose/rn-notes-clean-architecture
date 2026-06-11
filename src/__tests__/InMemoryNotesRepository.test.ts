@@ -166,6 +166,73 @@ describe('InMemoryNotesRepository', () => {
     });
   });
 
+  describe('unarchiveNote', () => {
+    it('unarchives a note', async () => {
+      const note = await repository.createNote({
+        title: 'Test',
+        body: 'Body',
+      });
+
+      await repository.archiveNote(note.id);
+      await repository.unarchiveNote(note.id);
+
+      const restored = await repository.getNoteById(note.id);
+      expect(restored?.isArchived).toBe(false);
+    });
+
+    it('preserves note content when unarchiving', async () => {
+      const note = await repository.createNote({
+        title: 'My Note',
+        body: 'My Body',
+        tags: ['work', 'important'],
+      });
+
+      await repository.archiveNote(note.id);
+      await repository.unarchiveNote(note.id);
+
+      const restored = await repository.getNoteById(note.id);
+      expect(restored?.title).toBe('My Note');
+      expect(restored?.body).toBe('My Body');
+      expect(restored?.tags).toEqual(['work', 'important']);
+    });
+
+    it('does not duplicate the note', async () => {
+      const note = await repository.createNote({
+        title: 'Unique',
+        body: 'Body',
+      });
+
+      await repository.archiveNote(note.id);
+      await repository.unarchiveNote(note.id);
+
+      const all = await repository.getNotes();
+      expect(all).toHaveLength(1);
+      expect(all[0].id).toBe(note.id);
+    });
+
+    it('updates updatedAt on unarchive', async () => {
+      const note = await repository.createNote({
+        title: 'Test',
+        body: 'Body',
+      });
+
+      await repository.archiveNote(note.id);
+      await new Promise((r) => setTimeout(r, 10));
+      await repository.unarchiveNote(note.id);
+
+      const restored = await repository.getNoteById(note.id);
+      expect(new Date(restored!.updatedAt).getTime()).toBeGreaterThan(
+        new Date(note.updatedAt).getTime(),
+      );
+    });
+
+    it('throws for non-existent note', async () => {
+      await expect(repository.unarchiveNote('non-existent')).rejects.toThrow(
+        'Note with id "non-existent" not found',
+      );
+    });
+  });
+
   describe('deleteNote', () => {
     it('deletes a note', async () => {
       const note = await repository.createNote({
