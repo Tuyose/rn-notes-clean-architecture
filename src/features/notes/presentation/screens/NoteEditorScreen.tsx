@@ -9,6 +9,7 @@ import {
   AppInput,
   AppScreen,
   ScreenHeader,
+  AppToast,
 } from '../../../../core/design-system';
 import { colors, spacing } from '../../../../core/theme';
 import { useNotesStore } from '../store';
@@ -17,21 +18,16 @@ import type { NoteFormData } from '../../validation';
 import type { Note } from '../../domain/entities';
 
 interface NoteEditorScreenProps {
-  /** Existing note to edit. If null, creates a new note. */
   note?: Note | null;
 }
 
-/**
- * Unified note editor for both creating and editing notes.
- *
- * - New note: empty fields, Save calls createNote
- * - Existing note: pre-filled fields, Save calls updateNote
- * - Dirty tracking: shows "Unsaved" hint when content changes
- */
+type SaveStatus = 'idle' | 'saving' | 'saved' | 'unsaved';
+
 export function NoteEditorScreen({ note }: NoteEditorScreenProps) {
   const router = useRouter();
-  const { createNote, updateNote, archiveNote, deleteNote, loading } = useNotesStore();
-  const [saved, setSaved] = useState(false);
+  const { createNote, updateNote, archiveNote, deleteNote, toast, hideToast } =
+    useNotesStore();
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isNew = !note;
@@ -50,7 +46,6 @@ export function NoteEditorScreen({ note }: NoteEditorScreenProps) {
     },
   });
 
-  // Reset form when note changes
   useEffect(() => {
     if (note) {
       reset({
@@ -61,7 +56,6 @@ export function NoteEditorScreen({ note }: NoteEditorScreenProps) {
     }
   }, [note, reset]);
 
-  // Cleanup timer
   useEffect(() => {
     return () => {
       if (savedTimer.current) clearTimeout(savedTimer.current);
@@ -70,6 +64,7 @@ export function NoteEditorScreen({ note }: NoteEditorScreenProps) {
 
   const onSubmit = useCallback(
     async (data: NoteFormData) => {
+      setSaveStatus('saving');
       try {
         if (isNew) {
           await createNote({
@@ -85,16 +80,15 @@ export function NoteEditorScreen({ note }: NoteEditorScreenProps) {
           });
         }
 
-        // Show saved feedback
-        setSaved(true);
+        setSaveStatus('saved');
         if (savedTimer.current) clearTimeout(savedTimer.current);
-        savedTimer.current = setTimeout(() => setSaved(false), 1500);
+        savedTimer.current = setTimeout(() => setSaveStatus('idle'), 2000);
 
         if (isNew) {
           router.back();
         }
       } catch {
-        // Error is handled by the store
+        setSaveStatus('unsaved');
       }
     },
     [isNew, note, createNote, updateNote, router],
@@ -145,18 +139,33 @@ export function NoteEditorScreen({ note }: NoteEditorScreenProps) {
       })
     : null;
 
+  const isUnsaved = isDirty && saveStatus !== 'saving' && saveStatus !== 'saved';
+
+  const getSaveButtonTitle = () => {
+    switch (saveStatus) {
+      case 'saving':
+        return 'Saving…';
+      case 'saved':
+        return 'Saved';
+      default:
+        return 'Save';
+    }
+  };
+
+  const canSave = isNew || isUnsaved || saveStatus === 'saving';
+
   return (
     <AppScreen>
       <ScreenHeader
         onBack={() => router.back()}
         rightAction={
           <AppButton
-            title={saved ? 'Saved' : 'Save'}
+            title={getSaveButtonTitle()}
             variant="ghost"
             size="sm"
             onPress={handleSave}
-            loading={loading}
-            disabled={loading}
+            loading={saveStatus === 'saving'}
+            disabled={!canSave && !isNew}
           />
         }
       />
@@ -232,14 +241,19 @@ export function NoteEditorScreen({ note }: NoteEditorScreenProps) {
           <AppText variant="caption" color={colors.gray400}>
             {isNew ? 'Local draft' : `Updated ${updatedDate}`}
           </AppText>
-          {isDirty && !isNew && (
+          {isUnsaved && !isNew && (
             <AppText variant="caption" color={colors.warning}>
-              Unsaved
+              Unsaved changes
+            </AppText>
+          )}
+          {saveStatus === 'saved' && !isNew && (
+            <AppText variant="caption" color={colors.success}>
+              Saved
             </AppText>
           )}
         </View>
 
-        {/* Actions — only for existing notes */}
+        {/* Actions — only for existing notes, now more subtle */}
         {!isNew && (
           <View style={styles.actions}>
             <AppButton
@@ -253,6 +267,15 @@ export function NoteEditorScreen({ note }: NoteEditorScreenProps) {
           </View>
         )}
       </ScrollView>
+
+      {/* Toast for undo feedback */}
+      <AppToast
+        visible={toast.visible}
+        message={toast.message}
+        actionLabel={toast.undoAction ? 'Undo' : undefined}
+        onAction={toast.undoAction ?? undefined}
+        onDismiss={hideToast}
+      />
     </AppScreen>
   );
 }
