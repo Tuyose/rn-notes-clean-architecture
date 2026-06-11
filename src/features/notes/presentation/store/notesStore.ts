@@ -178,20 +178,13 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   undoArchive: async (snapshot: NoteSnapshot) => {
     set({ loading: true, error: null });
     try {
-      // Toggle archive state back
+      // Restore the note to its previous archive state
       if (snapshot.wasArchived) {
-        // Was archived, we archived it again — undo means unarchive
+        // Was archived before, we archived it again — undo re-archives
         await repository.archiveNote(snapshot.note.id);
       } else {
-        // Was not archived, we archived it — undo means unarchive
-        // Since archiveNote always sets isArchived: true, we need to update
-        await repository.updateNote(snapshot.note.id, {
-          title: snapshot.note.title,
-          body: snapshot.note.body,
-          tags: snapshot.note.tags,
-        });
-        // Then set archived back via archiveNote toggle isn't available,
-        // so we directly update the note
+        // Was not archived, we archived it — undo unarchives
+        await repository.unarchiveNote(snapshot.note.id);
       }
       await refreshNotes(set);
       set({ loading: false });
