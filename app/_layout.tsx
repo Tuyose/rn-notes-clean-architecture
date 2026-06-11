@@ -11,12 +11,22 @@ export default function RootLayout() {
           headerShown: false,
           contentStyle: { backgroundColor: colors.background },
           animation: 'ios_from_right',
-          animationDuration: 200,
+          animationDuration: 250,
           gestureEnabled: true,
           gestureDirection: 'horizontal',
           fullScreenGestureEnabled: true,
         }}
-      />
+      >
+        <Stack.Screen name="index" />
+        <Stack.Screen
+          name="notes/new"
+          options={{
+            animation: 'slide_from_bottom',
+            animationDuration: 300,
+          }}
+        />
+        <Stack.Screen name="notes/[id]" />
+      </Stack>
     </>
   );
 }
