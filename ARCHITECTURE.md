@@ -152,6 +152,37 @@ The NotesListScreen implements client-side filtering:
 - **Combined**: Search and tag filters work together (AND logic)
 - Filtering is pure — the source notes list is never mutated
 
+## Interaction Patterns
+
+### Undo for Archive/Delete
+
+The store implements undo via snapshots:
+
+1. Before archive/delete, the store saves a `NoteSnapshot` (note + wasArchived flag)
+2. The operation executes
+3. A toast appears with an "Undo" action
+4. Undo restores the note from the snapshot
+5. Toast auto-dismisses after 4 seconds
+
+The toast uses React Native's built-in `Animated` API — no third-party library.
+
+### Editor Dirty-State
+
+The editor uses React Hook Form's `isDirty` to track changes:
+
+- Save button disabled when no changes
+- Save button enabled when form is dirty
+- Save status: idle → saving → saved → idle
+- Metadata row shows "Unsaved changes" or "Saved"
+
+### Action Menu
+
+Long press on a note row opens a bottom-sheet action menu:
+
+- Uses React Native `Modal` with transparent overlay
+- Actions: Archive, Delete, Cancel
+- Delete requires confirmation via `Alert`
+
 ## Adding Persistence
 
 To swap persistence (e.g., AsyncStorage → SQLite):

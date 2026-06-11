@@ -1,6 +1,16 @@
 # Roadmap
 
-## v0.2.0 — Local Persistence and Filtering (Current)
+## v0.3.0 — Interaction Quality (Current)
+
+- [x] Native navigation transitions (slide from bottom for new note)
+- [x] Note row press feedback
+- [x] Long press action menu (archive, delete, cancel)
+- [x] Toast with undo for archive/delete
+- [x] Editor dirty-state and save feedback
+- [x] Save button enabled only when dirty
+- [x] 95 tests covering interaction behavior
+
+## v0.2.0 — Local Persistence and Filtering
 
 - [x] AsyncStorage persistence via `AsyncStorageNotesRepository`
 - [x] Repository factory pattern

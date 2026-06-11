@@ -26,22 +26,30 @@ A React Native notes app demonstrating clean architecture, typed domain models, 
 - **Swappable repository** — in-memory for tests, AsyncStorage for production, SQLite later
 - **Real search** — filter by title, body, and tags, case-insensitive
 - **Real tag filtering** — dynamic tag chips from current notes, works with search
+- **Action menu** — long press on note row for archive/delete actions
+- **Undo feedback** — toast with undo action after archive/delete
+- **Dirty-state feedback** — save button shows unsaved/saving/saved status
 - **Clean architecture** — domain entities, repository interfaces, use cases, and presentation layers are fully separated
-- **Typed design system** — AppText, AppButton, AppInput, AppCard, AppBadge, AppEmptyState, AppScreen, ScreenHeader
+- **Typed design system** — AppText, AppButton, AppInput, AppCard, AppBadge, AppEmptyState, AppScreen, ScreenHeader, AppToast
 - **Validation** — Zod schemas with React Hook Form integration
-- **Tests** — 84 tests covering repository, persistence, use cases, validation, sorting, and filtering
+- **Tests** — 95 tests covering repository, persistence, use cases, validation, sorting, filtering, and interaction behavior
+
+## v0.3.0 — Interaction Quality
+
+- Native navigation transitions: new note slides from bottom, back gesture enabled
+- Note row press feedback with opacity change
+- Long press on note row opens action menu (archive, delete, cancel)
+- Toast with undo after archive/delete
+- Editor save button only enabled when content is dirty
+- Save status indicators: unsaved, saving, saved
+- No Reanimated or Gesture Handler — built with React Native Animated API
 
 ## v0.2.0 — Local Persistence and Filtering
 
 - AsyncStorage persistence replaces in-memory-only storage
-- Notes survive app restarts
-- Repository factory: `createNotesRepository()` for production, `createTestRepository()` for tests
-- Search bar filters by title, body, and tags
-- Tag chips are dynamic from current notes
-- Search and tag filtering work together
-- Empty filtered state: "No matching notes" with clear action
-- Data layer is swappable — swap `AsyncStorageNotesRepository` for SQLite without touching the rest of the app
-- No backend, no Firebase, no Supabase — persistence is local-only
+- Repository factory pattern for swappable implementations
+- Real search and tag filtering
+- 84 tests covering persistence and filtering
 
 ## Architecture
 
@@ -58,27 +66,26 @@ Presentation (screens, components, store)
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for full details.
 
-## How Persistence Works
+## How Undo Works
 
-The app uses a **repository factory** pattern:
+When archiving or deleting a note:
 
-- `createNotesRepository()` returns `AsyncStorageNotesRepository` — used by the production app
-- `createTestRepository()` returns `InMemoryNotesRepository` — used by tests
+1. The store takes a snapshot of the note before the operation
+2. The operation executes (archive/delete)
+3. A toast appears: "Note archived" or "Note deleted"
+4. The toast has an "Undo" button
+5. Pressing Undo restores the note from the snapshot
+6. The toast auto-dismisses after 4 seconds
 
-The store calls `hydrate()` on mount, which:
-1. Loads notes from AsyncStorage
-2. If storage is empty (first launch), seeds demo notes
-3. If JSON is corrupted, falls back to demo notes
-4. Notes are sorted by `updatedAt` descending
+## How Editor Dirty-State Works
 
-All mutations (create, update, archive, delete) persist to AsyncStorage automatically.
+The editor tracks form changes using React Hook Form's `isDirty` state:
 
-## How Search and Filtering Work
-
-- **Search**: Case-insensitive matching against title, body, and tags
-- **Tag chips**: Dynamically derived from current notes
-- **Combined**: Search and tag filtering work together
-- **Empty state**: Shows "No matching notes" with a "Clear Filters" action
+- Save button is disabled when no changes are made
+- After editing, Save becomes enabled
+- During save, button shows "Saving…"
+- After save, button shows "Saved" briefly, then returns to disabled
+- Metadata row shows "Unsaved changes" or "Saved" status
 
 ## Screenshots
 

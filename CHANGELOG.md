@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] — 2025-XX-XX
+
+### Added
+
+- `AppToast` component with slide-up animation (built-in Animated API)
+- `NoteActionMenu` bottom-sheet modal for note actions
+- Long press on note row opens action menu (archive, delete, cancel)
+- Toast with undo feedback after archive and delete
+- Store snapshot system for undo: `NoteSnapshot` captures note state before mutation
+- Editor save button only enabled when form is dirty
+- Save status indicators: saving, saved, unsaved changes
+- New note screen slides from bottom (`slide_from_bottom` animation)
+- Improved note row press feedback (gray100 background)
+- Interaction behavior tests (archive/delete undo, sorting after operations)
+
+### Changed
+
+- Root layout: per-screen animation configuration
+- NoteListItem: supports `onLongPress` prop
+- NoteEditorScreen: removed effect-based dirty tracking, uses `isDirty` directly
+- NotesListScreen: integrates action menu and toast
+- Test count increased from 84 to 95
+
 ## [0.2.0] — 2025-XX-XX
 
 ### Added
